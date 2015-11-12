@@ -1,0 +1,15 @@
+<html>
+<body>
+	<h1> New Savings Item</h1>
+<form action = "{{url_for('newSavingItem', savings_id = savings_id)}}" method = 'post'>
+		<p> Name: </p>
+			<input type = 'text' size = '30' name = 'name'>
+		<p> Description: </p>	
+			<input type = 'text' size = '80' name = 'description'>
+		<p> Price: </p>
+			<input type = 'text' size = '8' name = 'price' >
+	
+	<p><input type = 'submit' value = 'Create'></p>
+</form>
+</body>
+</html> 

@@ -1,0 +1,11 @@
+<html>
+<body>
+	<h1> Edit Savings Item</h1>
+<form action = "{{url_for('editSavingsItem', savings_id = savings_id, items_id = items_id)}}" method = 'POST'>
+		<p> Name: </p>
+			<input type = 'text' size = '30' name = 'name' placeholder = '{{item.name}}'>
+	<p><input type = 'submit' value = 'Edit'> 
+		<a href = '{{url_for('savingsList', savings_id = item.savings_id)}}'>Cancel</a></p>
+</form>
+</body>
+</html> 

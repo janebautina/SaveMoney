@@ -1,0 +1,66 @@
+<html>
+<head>
+  <!-- Latest compiled and minified CSS -->
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" integrity="sha512-dTfge/zgoMYpP7QbHy4gWMEGsbsdZeCXz7irItjcC3sPUFtf0kuFbDz/ixG7ArTxmDjLXDmezHubeNikyKGVyQ==" crossorigin="anonymous">
+
+  <!-- Optional theme -->
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap-theme.min.css" integrity="sha384-aUGj/X2zp5rLCbBxumKTCw2Z50WgIr1vs/PFN4praOTvYXWlVyh2UtNUU0KAUhAX" crossorigin="anonymous">
+
+  <!-- Latest compiled and minified JavaScript -->
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js" integrity="sha512-K1qjQ+NcF2TYO/eI3M6v8EiNYZfA95pQumfvcVrTHtwQVDG+aHRqLi/ETn2uB+1JqwYqVG3LIvdm9lj6imS/pQ==" crossorigin="anonymous"></script>
+
+  <link rel = stylesheet type = text/css href = "{{url_for('static', filename ='styles.css')}}"> 
+</head>
+<body>
+
+<div class="container">
+
+  <h1>{{savings.name}}</h1>
+  {% with messages = get_flashed_messages() %}
+  {% if messages %}
+
+  <ul>
+  {% for message in messages %}
+    <li><strong>{{message}}</strong></li>
+    {% endfor %}
+  </ul>
+  {% endif %}
+  {% endwith %}
+
+  <p><a href = '{{url_for('newSavingItem', savings_id = savings.id)}}'>Create a new item</a></p>
+
+  <table class="table table-striped">
+    <thead>
+      <th style="width:20%">Name</th>
+      <th style="width:25%">Photo</th>
+      <th style="width:20%">Description</th>
+      <th style="width:10%">Price</th>
+      <th style="width:15%">Action</th>
+    </thead>
+    {% for i in items %}
+
+      <tr>
+
+        <td>{{i.name}}</td>
+        <td> Photo Place</td>
+
+        <td>{{i.description}}</td>
+
+        <td> {{i.price}} </td>
+
+        <td colspan="4">
+          <a class="btn btn-default" href='{{url_for('editSavingsItem', savings_id = savings.id, items_id = i.id)}}'> Edit </a>
+
+          <a class="btn btn-warning" href ='{{url_for('deleteSavingsItem', savings_id = savings.id, items_id = i.id)}}'> Delete </a>
+         </td> 
+      </tr>
+
+    {% endfor %}
+  </table>
+<p><a href = '{{url_for('allSavings')}}'>Back to Savings</a></p>
+</div><!-- /.container -->
+
+</body>
+
+</html>
+
