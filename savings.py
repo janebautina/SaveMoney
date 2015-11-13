@@ -14,27 +14,65 @@ session = DBSession()
 @app.route('/')
 @app.route('/savings') 
 @app.route('/savings/') 
-
 def allSavings():
   savings  = session.query(Savings).all()
-  return render_template('savingslist.html', savings = savings)
+  total_sum = 0
+  for saving in savings:
+    total_sum += list_sums(saving.id)
+  return render_template('savingslist.html',
+    savings_and_sums = [(s, list_sums(s.id)) for s in savings],
+    sum = total_sum)
 
+def list_sums(savings_id):
+  savings = session.query(Savings).filter_by(id = savings_id).one()
+  items = session.query(Items).filter_by(savings_id = savings_id)
+  sum = 0
+  for item in items:
+    sum += item.price
+  return sum
+
+@app.route('/goals/', methods=['GET', 'POST']) 
+def rishGoal(): 
+  return "Buy" 
 
 @app.route('/savings/new/', methods=['GET', 'POST'])
 @app.route('/savings/new', methods=['GET', 'POST'])
 def newSavings():
-  return "New"
+  if request.method == 'POST':
+    newSaving = Savings(name = request.form['name'])
+    session.add(newSaving)
+    session.commit()
+    flash("New saving was created!")
+    return redirect(url_for('allSavings'))
+  else:
+    return render_template('newsaving.html')
+  
    
-
 @app.route('/savings/<int:savings_id>/edit/', methods=['GET', 'POST'])
 @app.route('/savings/<int:savings_id>/edit', methods=['GET', 'POST'])
 def editSavings(savings_id):
-  return "Hello Edit" 
+  editedSaving = session.query(Savings).filter_by(id = savings_id).one()
+  if request.method == 'POST':
+    if 'name' in request.form:
+      editedSaving.name = request.form['name']
+    session.add(editedSaving)
+    session.commit()
+    flash("Saving has been updated!")
+    return redirect(url_for('allSavings'))
+  else:
+    return render_template('editsaving.html', saving = editedSaving)
 
 @app.route('/savings/<int:savings_id>/delete/', methods=['GET', 'POST'])
 @app.route('/savings/<int:savings_id>/delete', methods=['GET', 'POST'])
 def deleteSavings(savings_id):
-  return "Hello Delete"
+  deletedSaving = session.query(Savings).filter_by(id = savings_id).one()
+  if request.method == 'POST':
+    session.delete(deletedSaving)
+    session.commit()
+    flash("Saving has been deleted!")
+    return redirect(url_for('allSavings'))
+  else:
+    return render_template('deletesaving.html', saving = deletedSaving)
 
 
 @app.route('/savings/<int:savings_id>/')

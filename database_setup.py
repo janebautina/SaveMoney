@@ -17,7 +17,7 @@ class Items(Base):
     id = Column(Integer, primary_key = True)
     name = Column(String(80), nullable = False)
     description = Column(String(250))
-    price = Column(Float(presicion=4), default = 0)
+    price = Column(Float(presicion=2), default = 0)
     date = Column(DateTime, onupdate=datetime.datetime.now)
     savings_id = Column(Integer, ForeignKey('savings.id'))
     savings = relationship(Savings)
