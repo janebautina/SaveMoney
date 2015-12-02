@@ -19,28 +19,17 @@ class Items(Base):
     description = Column(String(250))
     price = Column(Float(presicion=2), default = 0)
     date = Column(DateTime, onupdate=datetime.datetime.now)
+    photoFileName = Column(String, nullable = False)
     savings_id = Column(Integer, ForeignKey('savings.id'))
     savings = relationship(Savings)
-
-class PhotoItems(Base):
-    __tablename__ = 'photoitems'
-    id = Column(Integer, primary_key = True)
-    filename = Column(String, nullable = False)
-    items_id = Column(Integer, ForeignKey('items.id'))
-    items = relationship(Items)
 
 class Goals(Base):
     __tablename__ = 'goals'
     id = Column(Integer, primary_key = True)
     description = Column(String(250))
     price = Column(Float(presicion=2), default = 0)
+    photoFileName = Column(String, nullable = False)
 
-class PhotoGoals(Base):
-    __tablename__ = 'photogoals'
-    id = Column(Integer, primary_key = True)
-    filename = Column(String, nullable = False)
-    items_id = Column(Integer, ForeignKey('goals.id'))
-    items = relationship(Goals)
 
 engine = create_engine('sqlite:///savemoney.db')
 Base.metadata.create_all(engine)
