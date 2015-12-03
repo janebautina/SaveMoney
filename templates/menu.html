@@ -37,12 +37,13 @@
       <th style="width:10%">Price</th>
       <th style="width:15%">Action</th>
     </thead>
-    {% for i in items %}
-
+    {% for item_with_picture_url in items_with_picture_urls %}
+      {% set i = item_with_picture_url[0] %}
+      {% set picture_url = item_with_picture_url[1] %}
       <tr>
 
         <td>{{i.name}}</td>
-        <td><img src ="{{i.picture}}"></td>
+        <td><img src ="{{url_for('static', filename = picture_url)}}"></td>
 
         <td>{{i.description}}</td>
 

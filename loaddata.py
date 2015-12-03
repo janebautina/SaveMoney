@@ -1,8 +1,6 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from database_setup import Base, Savings, Items, ItemPicture
-from sqlalchemy_imageattach.context import store_context
-from sqlalchemy_imageattach.stores.fs import FileSystemStore
+from database_setup import Base, Savings, Items
 
 engine = create_engine('sqlite:///savemoney.db')
 Base.metadata.bind = engine 

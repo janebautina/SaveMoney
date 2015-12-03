@@ -3,12 +3,13 @@ app = Flask(__name__)
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from database_setup import Base, Savings, Items, Goals, ItemPicture
-from sqlalchemy_imageattach.context import store_context
-from sqlalchemy_imageattach.entity import Image, image_attachment
-import os
-from sqlalchemy_imageattach.stores.fs import HttpExposedFileSystemStore
+from database_setup import Base, Savings, Items, Goals
+import os, errno
 
+from werkzeug import secure_filename
+import time
+import random
+import string
 
 engine = create_engine('sqlite:///savemoney.db')
 Base.metadata.bind = engine
@@ -16,10 +17,9 @@ Base.metadata.bind = engine
 DBSession = sessionmaker(bind = engine)
 session = DBSession()
 
-absolute_path = os.path.abspath("/vagrant")
-fs_store = HttpExposedFileSystemStore(absolute_path, 'MoneySaver/')
-print absolute_path
-app.wsgi_app = fs_store.wsgi_middleware(app.wsgi_app)
+image_storage_dir = '/vagrant/MoneySaver/static/images/uploads'
+if not os.path.exists(image_storage_dir):
+  os.mkdir(image_storage_dir)
 
 @app.route('/')
 @app.route('/savings') 
@@ -92,25 +92,43 @@ def savingsList(savings_id):
   savings = session.query(Savings).filter_by(id = savings_id).one()
   #list all savings items
   items = session.query(Items).filter_by(savings_id = savings_id)
-  return render_template('menu.html', savings = savings, items = items)
+  return render_template('menu.html', savings = savings, 
+    items_with_picture_urls = [
+      (item, "images/uploads/" + os.path.basename(item.picture_path))
+      for item in items
+    ])
 
+def allowed_file(filename):
+  return '.' in filename and \
+    filename.rsplit('.', 1)[1].lower() in ['.jpg', '.png', '.gif']
 
 @app.route('/savings/<int:savings_id>/items/new', methods=['GET', 'POST'])
 @app.route('/savings/<int:savings_id>/items/new', methods=['GET', 'POST'])
 def newSavingItem(savings_id):
   if request.method == 'POST':
+    picture_file = request.files['picture']
+    random_string = ''.join(
+      random.SystemRandom().choice(
+        string.ascii_uppercase + string.digits
+      ) for _ in range(8)
+    )
+    # Prefix the uploaded file name with the current timestamp and a random
+    # string to reduce the probability of collisions.
+    upload_base_name = \
+      time.strftime('%Y-%m-%d_%H_%M_%S') + '_' + random_string + '_' + \
+      secure_filename(picture_file.filename)
+    upload_path = os.path.join(image_storage_dir, upload_base_name)
+
     newItem = Items(
       name        = request.form['name'],
       description = request.form['description'],
       price       = request.form['price'],
-      savings_id = savings_id
+      savings_id  = savings_id,
+      picture_path = upload_path
     )
-    picture_file = request.form.get('picture')
-    abspicpath = os.path.abspath(picture_file)
-    print abspicpath
-    with store_context(fs_store):
-      with open(abspicpath) as f:
-        newItem.picture.from_file(f)
+
+    picture_file.save(upload_path)
+
     session.add(newItem)
     session.commit()
     flash("new saving item was created!")
