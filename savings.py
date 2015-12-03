@@ -94,7 +94,10 @@ def savingsList(savings_id):
   items = session.query(Items).filter_by(savings_id = savings_id)
   return render_template('menu.html', savings = savings, 
     items_with_picture_urls = [
-      (item, "images/uploads/" + os.path.basename(item.picture_path))
+      (item, 
+        "images/uploads/" + os.path.basename(item.picture_path)
+          if item.picture_path else None
+      )
       for item in items
     ])
 
