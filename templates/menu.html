@@ -9,7 +9,7 @@
   <!-- Latest compiled and minified JavaScript -->
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js" integrity="sha512-K1qjQ+NcF2TYO/eI3M6v8EiNYZfA95pQumfvcVrTHtwQVDG+aHRqLi/ETn2uB+1JqwYqVG3LIvdm9lj6imS/pQ==" crossorigin="anonymous"></script>
 
-  <link rel = stylesheet type = text/css href = "{{url_for('static', filename ='styles.css')}}"> 
+  <link rel = stylesheet type = text/css href = "{{url_for('static', filename ='style.css')}}"> 
 </head>
 <body>
 
@@ -32,7 +32,7 @@
   <table class="table table-striped">
     <thead>
       <th style="width:20%">Name</th>
-      <th style="width:25%">Photo</th>
+      <th style="width:25%">Picture</th>
       <th style="width:20%">Description</th>
       <th style="width:10%">Price</th>
       <th style="width:15%">Action</th>
@@ -42,7 +42,7 @@
       <tr>
 
         <td>{{i.name}}</td>
-        <td> Photo Place</td>
+        <td><img src ="{{i.picture}}"></td>
 
         <td>{{i.description}}</td>
 

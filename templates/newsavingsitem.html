@@ -1,15 +1,44 @@
 <html>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>New Saving's Item</title>
+  <link href='https://fonts.googleapis.com/css?family=Indie+Flower' rel='stylesheet'>
+  <link rel="stylesheet" href = "../css/bootstrap.min.css">
+  <link rel="stylesheet" href = "../css/style.css">
+  <script type="text/javascript" src = "../js/jquery-1.11.3.js"></script>
+  <script type="text/javascript" src = "../js/bootstrap.min.js"></script>
+</head>
 <body>
-	<h1> New Saving</h1>
-<form action = "{{url_for('newSavingItem', savings_id = savings_id)}}" method = 'post'>
-		<p> Name: </p>
-			<input type = 'text' size = '30' name = 'name'>
-		<p> Description: </p>	
-			<input type = 'text' size = '80' name = 'description'>
-		<p> Price: </p>
-			<input type = 'text' size = '8' name = 'price' >
-	
-	<p><input type = 'submit' value = 'Create'></p>
-</form>
+  <div class="container">
+    <div class = "row">
+      <div class = "col-md-12 text-center">
+          <h1> New Saving's Item</h1>
+      </div>
+    </div>
+    <div class = "row">
+   <form action = "{{url_for('newSavingItem', savings_id = savings_id)}}" method = 'post'>
+  	<div class = "row">
+        <p> Item's Name: </p>
+  			<input type = 'text' size = '30' name = 'name'>
+    </div>
+    <div class = "row">
+  		  <p> Description: </p>	
+  			<input type = 'text' size = '80' name = 'description'>
+    </div>
+    <div class = "row">
+  		  <p> Price: </p>
+  			<input type = 'text' size = '8' name = 'price' >
+    </div>	
+    <div class="row">
+        </br>
+        <input  name = "picture" id="input-25" type="file" multiple=false class="file-loading">
+    </div>
+    <div class = "row">
+  	 <p><input type = 'submit' value = 'Create Item'></p>
+    </div>
+    </form>
+  </div>
 </body>
 </html> 

@@ -1,15 +1,25 @@
-from flask import Flask, render_template, request, redirect, url_for, flash, jsonify    
+from flask import Flask, render_template, request, redirect, url_for, flash, jsonify  
 app = Flask(__name__)
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from database_setup import Base, Savings, Items
+from database_setup import Base, Savings, Items, Goals, ItemPicture
+from sqlalchemy_imageattach.context import store_context
+from sqlalchemy_imageattach.entity import Image, image_attachment
+import os
+from sqlalchemy_imageattach.stores.fs import HttpExposedFileSystemStore
+
 
 engine = create_engine('sqlite:///savemoney.db')
 Base.metadata.bind = engine
 
 DBSession = sessionmaker(bind = engine)
 session = DBSession()
+
+absolute_path = os.path.abspath("/vagrant")
+fs_store = HttpExposedFileSystemStore(absolute_path, 'MoneySaver/')
+print absolute_path
+app.wsgi_app = fs_store.wsgi_middleware(app.wsgi_app)
 
 @app.route('/')
 @app.route('/savings') 
@@ -84,15 +94,23 @@ def savingsList(savings_id):
   items = session.query(Items).filter_by(savings_id = savings_id)
   return render_template('menu.html', savings = savings, items = items)
 
+
 @app.route('/savings/<int:savings_id>/items/new', methods=['GET', 'POST'])
 @app.route('/savings/<int:savings_id>/items/new', methods=['GET', 'POST'])
 def newSavingItem(savings_id):
   if request.method == 'POST':
-    newItem =Items(
+    newItem = Items(
       name        = request.form['name'],
       description = request.form['description'],
       price       = request.form['price'],
-      savings_id = savings_id)
+      savings_id = savings_id
+    )
+    picture_file = request.form.get('picture')
+    abspicpath = os.path.abspath(picture_file)
+    print abspicpath
+    with store_context(fs_store):
+      with open(abspicpath) as f:
+        newItem.picture.from_file(f)
     session.add(newItem)
     session.commit()
     flash("new saving item was created!")

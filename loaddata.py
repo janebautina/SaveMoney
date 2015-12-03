@@ -1,11 +1,14 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from database_setup import Base, Savings, Items
+from database_setup import Base, Savings, Items, ItemPicture
+from sqlalchemy_imageattach.context import store_context
+from sqlalchemy_imageattach.stores.fs import FileSystemStore
 
 engine = create_engine('sqlite:///savemoney.db')
 Base.metadata.bind = engine 
 DBSession = sessionmaker(bind=engine)
 session = DBSession()
+
 
 #-------------------------------------------------------------------------
 saving1 = Savings(name = "Sweets")
@@ -13,6 +16,7 @@ session.add(saving1)
 session.commit()
 
 Item1_1 = Items(name = "Black Forest Cake", description = "Piece of choco cake", price = 7.50 , savings = saving1)
+
 session.add(Item1_1)
 session.commit()
 Item1_2 = Items(name = "Banana Bread", description = "Piece of babana bread in Sturbacks", price = 5.30 , savings = saving1)
