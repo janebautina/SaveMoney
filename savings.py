@@ -145,7 +145,26 @@ def editSavingsItem(savings_id, items_id):
   editedItem = session.query(Items).filter_by(id = items_id).one()
   if request.method == 'POST':
     if 'name' in request.form:
-      editedItem.name = request.form['name']
+      if request.form['name'] != '':
+        editedItem.name = request.form['name']
+    if 'description' in request.form:
+      if request.form['description'] != '':
+        editedItem.description = request.form['description']
+    if 'price' in request.form:
+      if request.form['price'] != '':
+        editedItem.price = float(request.form['price'])
+    if 'picture' in request.files:
+       if request.files['picture']:
+        picture_file = request.files['picture']
+        random_string = ''.join(random.SystemRandom().choice(string.ascii_uppercase + string.digits) for _ in range(8))
+      # Prefix the uploaded file name with the current timestamp and a random
+      # string to reduce the probability of collisions.
+        upload_base_name = \
+          time.strftime('%Y-%m-%d_%H_%M_%S') + '_' + random_string + '_' + \
+          secure_filename(picture_file.filename)
+        upload_path = os.path.join(image_storage_dir, upload_base_name)  
+        editedItem.picture_path = upload_path
+        picture_file.save(upload_path)
     session.add(editedItem)
     session.commit()
     flash("Saving item has been updated!")

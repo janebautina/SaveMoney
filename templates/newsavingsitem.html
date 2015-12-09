@@ -16,29 +16,27 @@
           <h1> New Saving's Item</h1>
       </div>
     </div>
-    <div class = "row">
    <form action = "{{url_for('newSavingItem', savings_id = savings_id)}}"
          method = 'post'
          enctype = 'multipart/form-data'>
-  	<div class = "row">
-        <p> Item's Name: </p>
-  			<input type = 'text' size = '30' name = 'name'>
-    </div>
-    <div class = "row">
-  		  <p> Description: </p>	
-  			<input type = 'text' size = '80' name = 'description'>
-    </div>
-    <div class = "row">
-  		  <p> Price: </p>
-  			<input type = 'text' size = '8' name = 'price' >
-    </div>	
-    <div class="row">
-        </br>
-        <input name = "picture" id="input-25" type="file" multiple=false class="file-loading">
-    </div>
-    <div class = "row">
-  	 <p><input type = 'submit' value = 'Create Item'></p>
-    </div>
+    	<div class = "row">
+          <p> Item's Name: </p>
+    			<input type = 'text' size = '30' name = 'name'>
+      </div>
+      <div class = "row">
+    		  <p> Description: </p>	
+    			<input type = 'text' size = '80' name = 'description'>
+      </div>
+      <div class = "row">
+    		  <p> Price: </p>
+    			<input type = 'text' size = '8' name = 'price' >
+      </div>	
+      <div class="row">
+          <input name = "picture" id="input-25" type="file" multiple=false class="file-loading">
+      </div>
+      <div class = "row">
+    	     <p><input type = 'submit' value = 'Create Item'></p>
+      </div>
     </form>
   </div>
 </body>
