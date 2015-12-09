@@ -1,13 +1,21 @@
 body {
     font-weight: 100;
-    padding-top: 20px;
     font-family: 'Indie Flower', cursive;
-    background-color: #FFFFF0;
+    background-color: #FFFFFF;
     font-size: 23px;
 }
-.row{
-  padding:15px;
-}
+
 h1{
-  font-size: 36px;
+  color: #336699;
+  font-size: 90px;
+}
+.banner.menu {
+  height: 150px;
+}
+.banner.main {
+  height: 150px;
+  background: url("/static/doit1280.jpg");
+  background-position: right;
+  background-repeat: no-repeat;
+  background-size: cover;
 }
