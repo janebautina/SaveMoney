@@ -1,12 +1,31 @@
-<html>
-<body>
-	<h1> New Saving </h1>
+{% extends "main.html" %}
+{% block content %}
+{% include "header.html" %}
+  <div class="row banner main">
+    <div class="col-md-11 col-md-offset-1 padding-none">
+      <h1> New Saving</h1>
+    </div>
+  </div>
+
 <form action = "{{url_for('newSavings')}}" method = 'post'>
+  <div class="row">
+  </br>
 		<p> Name: </p>
 			<input type = 'text' size = '30' name = 'name'>
-	<p><input type = 'submit' value = 'Create'></p>
-  <a href = '{{url_for('allSavings')}}'>Cancel</a></p>
+  </div>
+  <div class="row">
+    </br>
+    <p></p>
+  </div>
+  <div class="row">
+    <div class = "col-md-1">
+	     <p><input type = 'submit' value = 'Create'></p>
+    </div>
 </form>
-
-</body>
-</html> 
+<form action = "{{url_for('allSavings')}}">
+  <div class ='col-md-2'>
+    <p><input type = 'submit' value = 'Cancel'></p>
+  </div>
+</form>
+</div>
+{% endblock %}

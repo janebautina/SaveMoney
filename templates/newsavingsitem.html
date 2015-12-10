@@ -1,43 +1,36 @@
-<html>
-<head>
-  <meta charset="utf-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>New Saving's Item</title>
-  <link rel="stylesheet" href = "../css/bootstrap.min.css">
-  <script type="text/javascript" src = "../js/jquery-1.11.3.js"></script>
-  <script type="text/javascript" src = "../js/bootstrap.min.js"></script>
-  <link rel = stylesheet type = text/css href = "{{url_for('static', filename ='style.css')}}">
-</head>
-<body>
-  <div class="container">
-    <div class = "row">
-      <div class = "col-md-12 text-center">
-          <h1> New Saving's Item</h1>
-      </div>
+{% extends "main.html" %}
+{% block content %}
+{% include "header.html" %}
+  <div class="row banner main">
+    <div class="col-md-11 col-md-offset-1 padding-none">
+      <h1>New Saving's Item</h1>
     </div>
+  </div>
    <form action = "{{url_for('newSavingItem', savings_id = savings_id)}}"
          method = 'post'
          enctype = 'multipart/form-data'>
     	<div class = "row">
+          </br>
           <p> Item's Name: </p>
     			<input type = 'text' size = '30' name = 'name'>
       </div>
       <div class = "row">
+      </br>
     		  <p> Description: </p>	
     			<input type = 'text' size = '80' name = 'description'>
       </div>
       <div class = "row">
+          </br>
     		  <p> Price: </p>
     			<input type = 'text' size = '8' name = 'price' >
       </div>	
       <div class="row">
+          </br>
           <input name = "picture" id="input-25" type="file" multiple=false class="file-loading">
       </div>
       <div class = "row">
+        </br>
     	     <p><input type = 'submit' value = 'Create Item'></p>
       </div>
     </form>
-  </div>
-</body>
-</html> 
+{% endblock %}

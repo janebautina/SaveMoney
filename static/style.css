@@ -19,3 +19,10 @@ h1{
   background-repeat: no-repeat;
   background-size: cover;
 }
+
+.file-loading{
+  font-size: 15px;
+}
+.col-md-1, .col-md-2{
+  padding-left: 0px;
+}

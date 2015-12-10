@@ -1,10 +1,24 @@
-<html>
-<body>
-<h1> Are you sure you want to delete {{saving.name}}? </h1>
-<form action="{{ url_for('deleteSavings', savings_id = saving.id) }}" method = 'post'>
-<input type='submit' value = 'Delete'>
-</form>
-<a href = "{{ url_for('allSavings') }}"> Cancel </a>
-</body>
-
-</html>
+{% extends "main.html" %}
+{% block content %}
+{% include "header.html" %}
+<div class="row banner main">
+    <div class="col-md-11 col-md-offset-1 padding-none">
+      <h1>Delete {{saving.name}}?</h1>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-1">
+      </br>
+      <form action="{{ url_for('deleteSavings', savings_id = saving.id) }}" method = 'post'>
+        <input type='submit' value = 'Delete'>
+      </form>
+    </div>
+    <div class="col-md-2">
+    </br>
+      <form action="{{url_for('allSavings')}}">
+        <input type='submit' value = 'Cancel'>
+      </form>
+    </br>
+    </div>
+</div>
+{% endblock %}
