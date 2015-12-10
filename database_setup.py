@@ -23,12 +23,5 @@ class Items(Base):
     savings_id = Column(Integer, ForeignKey('savings.id'))
     savings = relationship(Savings)
 
-class Goals(Base):
-    __tablename__ = 'goals'
-    id = Column(Integer, primary_key = True)
-    description = Column(String(250))
-    price = Column(Float(presicion=2), default = 0)
-    photoFileName = Column(String, nullable = False)
-
 engine = create_engine('sqlite:///savemoney.db')
 Base.metadata.create_all(engine)

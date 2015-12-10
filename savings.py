@@ -3,7 +3,7 @@ app = Flask(__name__)
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from database_setup import Base, Savings, Items, Goals
+from database_setup import Base, Savings, Items
 import os, errno
 
 from werkzeug import secure_filename
@@ -41,9 +41,6 @@ def list_sums(savings_id):
     sum += item.price
   return sum
 
-@app.route('/goals/', methods=['GET', 'POST']) 
-def rishGoal(): 
-  return "Buy" 
 
 @app.route('/savings/new/', methods=['GET', 'POST'])
 @app.route('/savings/new', methods=['GET', 'POST'])
