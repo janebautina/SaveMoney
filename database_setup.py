@@ -3,6 +3,7 @@ import datetime
 from sqlalchemy import Column, Integer, String, ForeignKey, Float, DateTime
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
+from sqlalchemy.orm import backref
 from sqlalchemy import create_engine
 
 Base = declarative_base()
@@ -21,7 +22,7 @@ class Items(Base):
     date = Column(DateTime, onupdate=datetime.datetime.now)
     picture_path = Column(String(1024))
     savings_id = Column(Integer, ForeignKey('savings.id'))
-    savings = relationship(Savings)
+    savings = relationship(Savings, backref=backref("items", cascade="all,delete"))
 
 engine = create_engine('sqlite:///savemoney.db')
 Base.metadata.create_all(engine)

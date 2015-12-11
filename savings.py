@@ -46,10 +46,12 @@ def list_sums(savings_id):
 @app.route('/savings/new', methods=['GET', 'POST'])
 def newSavings():
   if request.method == 'POST':
-    newSaving = Savings(name = request.form['name'])
-    session.add(newSaving)
-    session.commit()
-    flash("New saving was created!")
+    if 'name' in request.form:
+      if request.form['name']!='':
+        newSaving = Savings(name = request.form['name'])
+        session.add(newSaving)
+        session.commit()
+        flash("New saving was created!")
     return redirect(url_for('allSavings'))
   else:
     return render_template('newsaving.html')
@@ -61,7 +63,8 @@ def editSavings(savings_id):
   editedSaving = session.query(Savings).filter_by(id = savings_id).one()
   if request.method == 'POST':
     if 'name' in request.form:
-      editedSaving.name = request.form['name']
+      if request.form['name']!='':
+        editedSaving.name = request.form['name']
     session.add(editedSaving)
     session.commit()
     flash("Saving has been updated!")
@@ -73,7 +76,10 @@ def editSavings(savings_id):
 @app.route('/savings/<int:savings_id>/delete', methods=['GET', 'POST'])
 def deleteSavings(savings_id):
   deletedSaving = session.query(Savings).filter_by(id = savings_id).one()
+  listItems = session.query(Items).filter_by(savings_id = deletedSaving.id)
   if request.method == 'POST':
+    for item in listItems:
+      deletefile(deletedItem.picture_path)
     session.delete(deletedSaving)
     session.commit()
     flash("Saving has been deleted!")
@@ -106,33 +112,35 @@ def allowed_file(filename):
 @app.route('/savings/<int:savings_id>/items/new', methods=['GET', 'POST'])
 def newSavingItem(savings_id):
   if request.method == 'POST':
-    picture_file = request.files['picture']
-    random_string = ''.join(
-      random.SystemRandom().choice(
-        string.ascii_uppercase + string.digits
-      ) for _ in range(8)
-    )
-    # Prefix the uploaded file name with the current timestamp and a random
-    # string to reduce the probability of collisions.
-    upload_base_name = \
-      time.strftime('%Y-%m-%d_%H_%M_%S') + '_' + random_string + '_' + \
-      secure_filename(picture_file.filename)
-    upload_path = os.path.join(image_storage_dir, upload_base_name)
-
-    newItem = Items(
-      name        = request.form['name'],
-      description = request.form['description'],
-      price       = request.form['price'],
-      savings_id  = savings_id,
-      picture_path = upload_path
-    )
-
-    picture_file.save(upload_path)
-
-    session.add(newItem)
-    session.commit()
-    flash("new saving item was created!")
-    return redirect(url_for('savingsList', savings_id = savings_id))
+      if 'name' in request.form:
+        if request.form['name'] != '':
+          newName = request.form['name']
+          if 'picture' in request.files:
+            if request.files['picture']:
+              picture_file = request.files['picture']
+              random_string = ''.join(random.SystemRandom().choice(string.ascii_uppercase + string.digits) for _ in range(8))
+              # Prefix the uploaded file name with the current timestamp and a random
+              # string to reduce the probability of collisions.
+              upload_base_name = time.strftime('%Y-%m-%d_%H_%M_%S') + '_' + random_string + '_' + secure_filename(picture_file.filename)
+              upload_path = os.path.join(image_storage_dir, upload_base_name)
+              newDescription = request.form['description']
+              if 'price' in request.form:
+                if request.form['price'] != '':
+                  newPrice = request.form['price']
+                else: 
+                  newPrice = 0.0
+              newItem = Items(
+                name        = newName,
+                description = newDescription,
+                price       = newPrice,
+                savings_id  = savings_id,
+                picture_path = upload_path
+              )
+              picture_file.save(upload_path)
+              session.add(newItem)
+              session.commit()
+              flash("new saving item was created!")
+      return redirect(url_for('savingsList', savings_id = savings_id))
   else:
     return render_template('newsavingsitem.html', savings_id = savings_id)
 
@@ -169,11 +177,15 @@ def editSavingsItem(savings_id, items_id):
   else:
     return render_template('editedsavingsitem.html', savings_id = savings_id, items_id = items_id, item = editedItem)
 
+def deletefile(name):
+  os.system('rm '+ name)
+
 @app.route('/savings/<int:savings_id>/items/<int:items_id>/delete', methods = ['GET', 'POST'])
 @app.route('/savings/<int:savings_id>/items/<int:items_id>/delete/', methods = ['GET', 'POST'])
 def deleteSavingsItem(savings_id, items_id):
   deletedItem = session.query(Items).filter_by(id = items_id).one()
   if request.method == 'POST':
+    deletefile(deletedItem.picture_path)
     session.delete(deletedItem)
     session.commit()
     flash("Saving item has been deleted!")
