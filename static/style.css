@@ -13,7 +13,7 @@ h1{
   height: 150px;
 }
 .banner.main {
-  height: 150px;
+  height: 180px;
   background: url("/static/doit1280.jpg");
   background-position: right;
   background-repeat: no-repeat;
@@ -35,12 +35,13 @@ h1{
 .creator img {
   width: 100px;
   border-radius: 50%;
+  margin-top: 15px;
 }
 .creator figcaption {
   font-size: 14px;
   color: #7B7573;
   font-weight: 400;
-  margin-top:5px;
+  margin-top: 5px;
 }
 .flash {
   background-color: #98FB98;
