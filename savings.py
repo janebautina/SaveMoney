@@ -316,7 +316,7 @@ def deleteSavings(savings_id):
     return redirect(url_for('allSavings'))
   else:
     return render_template('deletesaving.html', saving = deletedSaving)
-
+#-------------------------------------------------------------------------------
 
 @app.route('/savings/<int:savings_id>/')
 @app.route('/savings/<int:savings_id>/items')
@@ -325,7 +325,8 @@ def savingsList(savings_id):
   savings = session.query(Savings).filter_by(id = savings_id).one()
   #list all savings items
   items = session.query(Items).filter_by(savings_id = savings_id)
-  return render_template('menu.html', savings = savings, 
+  creator = session.query(User).filter_by(id = savings.user_id).one()
+  return render_template('menu.html', creator = creator, savings = savings, 
     items_with_picture_urls = [
       (item, 
         "images/uploads/" + os.path.basename(item.picture_path)
