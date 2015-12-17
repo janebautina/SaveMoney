@@ -325,14 +325,24 @@ def savingsList(savings_id):
   #list all savings items
   items = session.query(Items).filter_by(savings_id = savings_id)
   creator = session.query(User).filter_by(id = savings.user_id).one()
-  return render_template('menu.html', creator = creator, savings = savings, 
-    items_with_picture_urls = [
-      (item, 
-        "images/uploads/" + os.path.basename(item.picture_path)
-          if item.picture_path else None
-      )
-      for item in items
-    ])
+  if 'username' not in login_session:
+    return render_template('publicmenu.html', savings = savings, 
+        items_with_picture_urls = [
+          (item, 
+            "images/uploads/" + os.path.basename(item.picture_path)
+              if item.picture_path else None
+          )
+          for item in items
+        ])
+  else:
+      return render_template('menu.html', creator = creator, savings = savings, 
+        items_with_picture_urls = [
+          (item, 
+            "images/uploads/" + os.path.basename(item.picture_path)
+              if item.picture_path else None
+          )
+          for item in items
+        ])
 
 def allowed_file(filename):
   return '.' in filename and \
