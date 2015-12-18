@@ -1,7 +1,7 @@
 
 Welcome to SaveMoney!
  
- This application that provides a list of savings options within a variety 
+ This application that provides a list of savings options with a variety 
  of savings' items as well as provide a user registration and authentication 
  system. Onle registered users will have the ability to post, edit and delete 
  their own savings and savings items. Also the application provides 
