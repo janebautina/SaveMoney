@@ -1,8 +1,16 @@
 from flask import Flask, render_template, request, redirect, url_for
-from flask import flash, jsonify, make_response  
+from flask import flash, jsonify, make_response
 from flask import session as login_session
 
-import os, errno, json, inspect, requests, httplib2, time, random, string
+import os
+import errno
+import json
+import inspect
+import requests
+import httplib2
+import time
+import random
+import string
 
 from sqlalchemy import create_engine, asc
 from sqlalchemy.orm import sessionmaker
@@ -17,67 +25,76 @@ from oauth2client.client import FlowExchangeError
 app = Flask(__name__)
 
 CLIENT_ID = json.loads(open(
-  'client_secret.json','r').read())['web']['client_id']
+  'client_secret.json', 'r').read())['web']['client_id']
 APPLICATION_NAME = "Savings"
 
 engine = create_engine('sqlite:///savemoneywithusers.db')
 Base.metadata.bind = engine
 
-DBSession = sessionmaker(bind = engine)
+DBSession = sessionmaker(bind=engine)
 session = DBSession()
 
 image_storage_dir = '/vagrant/MoneySaver/static/images/uploads'
 if not os.path.exists(image_storage_dir):
-  os.mkdir(image_storage_dir)
+    os.mkdir(image_storage_dir)
+
 
 @app.route('/')
-@app.route('/savings') 
-@app.route('/savings/') 
+@app.route('/savings')
+@app.route('/savings/')
 def allSavings():
-  savings  = session.query(Savings).all()
-  total_sum = 0
-  for saving in savings:
-    total_sum += list_sums(saving.id)
-  if 'username' not in login_session:
-    return render_template('publicsavings.html', 
-      savings_and_sums = [(s, list_sums(s.id)) for s in savings], 
-      sum = total_sum)
-  else:
-    return render_template('savingslist.html', 
-      savings_and_sums = [(s, list_sums(s.id)) for s in savings], 
-      sum = total_sum)
+    savings = session.query(Savings).all()
+    total_sum = 0
+    for saving in savings:
+        total_sum += list_sums(saving.id)
+    if 'username' not in login_session:
+        return render_template('publicsavings.html',
+                    savings_and_sums=[(s, list_sums(s.id)) for s in savings],
+                    sum=total_sum)
+    else:
+        return render_template('savingslist.html',
+                    savings_and_sums=[(s, list_sums(s.id)) for s in savings],
+                    sum=total_sum)
+
 
 @app.route('/login')
 def showLogin():
-    state = ''.join(random.choice(string.ascii_uppercase+ 
-      string.digits) for x in xrange(32))
+    state = ''.join(random.choice(string.ascii_uppercase +
+                    string.digits) for x in xrange(32))
     login_session['state'] = state
     return render_template('login.html', STATE=state)
 
-#------------------------------------------------------------------------------
-#JSON APIs
+# -----------------------------------------------------------------------------
+# JSON APIs
+
+
 @app.route('/savings/<int:savings_id>/items/JSON')
 def restaurantMenuJSON(savings_id):
-    saving = session.query(Savings).filter_by(id = savings_id).one()
-    items = session.query(Items).filter_by(savings_id = savings_id).all()
+    saving = session.query(Savings).filter_by(id=savings_id).one()
+    items = session.query(Items).filter_by(savings_id=savings_id).all()
     return jsonify(Items=[i.serialize for i in items])
+
 
 @app.route('/savings/<int:savings_id>/items/<int:items_id>/JSON')
 def menuItemJSON(savings_id, items_id):
-    item = session.query(Items).filter_by(id = items_id).one()
-    return jsonify(item = item.serialize)
+    item = session.query(Items).filter_by(id=items_id).one()
+    return jsonify(item=item.serialize)
+
 
 @app.route('/users/JSON')
 def usersJSON():
     users = session.query(User).all()
-    return jsonify(users = [u.serialize for u in users])
+    return jsonify(users=[u.serialize for u in users])
+
 
 @app.route('/savings/JSON')
 def savingsJSON():
-    savings  = session.query(Savings).all()
-    return jsonify(savings= [s.serialize for s in savings])
+    savings = session.query(Savings).all()
+    return jsonify(savings=[s.serialize for s in savings])
 
-#-------------------GOOGLE_OAUTH2_CONNECT---------------------------------------
+# -----------------GOOGLE_OAUTH2_CONNECT-------------------------------------
+
+
 @app.route('/gconnect', methods=['POST'])
 def gconnect():
     # Validate state token
@@ -134,20 +151,17 @@ def gconnect():
 
     login_session['credentials'] = credentials
     login_session['gplus_id'] = gplus_id
- 
     # Get user info
     userinfo_url = "https://www.googleapis.com/oauth2/v1/userinfo"
     params = {'access_token': credentials.access_token, 'alt': 'json'}
     answer = requests.get(userinfo_url, params=params)
     data = answer.json()
-    #data = json.loads(answer.text)
-
     login_session['username'] = data['name']
     login_session['picture'] = data['picture']
     login_session['email'] = data['email']
     login_session['provider'] = 'google'
 
-    #see if user exists, if it doesn't make a new one
+    # see if user exists, if it doesn't make a new one
     user_id = getUserID(login_session['email'])
     if not user_id:
         user_id = createUser(login_session)
@@ -158,17 +172,25 @@ def gconnect():
     output += '!</h1>'
     output += '<img src="'
     output += login_session['picture']
-    output += ' " style = "width: 300px; height: 300px;border-radius: 150px;-webkit-border-radius: 150px;-moz-border-radius: 150px;"> '
+    output += ' " style = "' + \
+              'width: 300px; ' + \
+              'height: 300px; ' + \
+              'border-radius: 150px; ' + \
+              '-webkit-border-radius: 150px; ' + \
+              '-moz-border-radius: 150px;' + \
+              '"> '
     flash("you are now logged in as %s" % login_session['username'])
     print "done!"
     return output
+
 
 @app.route('/gdisconnect')
 def gdisconnect():
     # Only disconnect a connected user.
     credentials = login_session.get('credentials')
     if credentials is None:
-        response = make_response(json.dumps('Current user not connected.'), 401)
+        response = make_response(json.dumps('Current user not connected.'
+                                 ), 401)
         response.headers['Content-Type'] = 'application/json'
         return response
     access_token = credentials.access_token
@@ -182,26 +204,32 @@ def gdisconnect():
         response.headers['Content-Type'] = 'application/json'
         return response
 
+
 def getUserInfo(user_id):
-    user = session.query(User).filter_by(id = user_id).one()
+    user = session.query(User).filter_by(id=user_id).one()
     return user
+
 
 def getUserID(email):
     try:
-        user = session.query(User).filter_by(email = email).one()
+        user = session.query(User).filter_by(email=email).one()
         return user.id
     except:
         return None
 
+
 def createUser(login_session):
-    newUser = User(name=login_session['username'], email=login_session['email'], 
-      picture=login_session['picture'])
+    newUser = User(name=login_session['username'],
+                   email=login_session['email'],
+                   picture=login_session['picture'])
     session.add(newUser)
     session.commit()
-    user = session.query(User).filter_by(email = login_session['email']).one()
+    user = session.query(User).filter_by(email=login_session['email']).one()
     return user.id
 
-#------------------------Facebook_Connect--------------------------------------
+# -----------------------Facebook_Connect------------------------------------
+
+
 @app.route('/fbconnect', methods=['POST'])
 def fbconnect():
     if request.args.get('state') != login_session['state']:
@@ -212,10 +240,13 @@ def fbconnect():
         return response
     access_token = request.data
     app_id = json.loads(open('fb_client_secrets.json',
-      'r').read())['web']['app_id']
+                              'r').read())['web']['app_id']
     app_secret = json.loads(open('fb_client_secrets.json',
-      'r').read())['web']['app_secret']
-    url = 'https://graph.facebook.com/oauth/access_token?grant_type=fb_exchange_token&client_id=%s&client_secret=%s&fb_exchange_token=%s' % (app_id, app_secret, access_token)
+                                  'r').read())['web']['app_secret']
+    url = (
+      'https://graph.facebook.com/oauth/access_token?grant_type=' +
+      'fb_exchange_token&client_id=%s&client_secret=%s&fb_exchange_token=%s'
+    ) % (app_id, app_secret, access_token)
     h = httplib2.Http()
     result = h.request(url, 'GET')[1]
     userinfo_url = "https://graph.facebook.com/v2.5/me"
@@ -234,17 +265,20 @@ def fbconnect():
     stored_token = token.split("=")[1]
     login_session['access_token'] = stored_token
 
-    #Profile picture
-    url = 'https://graph.facebook.com/v2.5/me/picture?%s&redirect=0&height=200&width=200' % token
+    # Profile picture
+    url = (
+      'https://graph.facebook.com/v2.5/me/picture?' +
+      '%s&redirect=0&height=200&width=200'
+    ) % token
     h = httplib2.Http()
     result = h.request(url, 'GET')[1]
     data = json.loads(result)
 
     login_session['picture'] = data["data"]["url"]
-    #see if user exists
+    # see if user exists
     user_id = getUserID(login_session['email'])
     if not user_id:
-        user_id= createUser(login_session)
+        user_id = createUser(login_session)
     login_session['user_id'] = user_id
     output = ''
     output += '<h1>Welcome, '
@@ -252,10 +286,16 @@ def fbconnect():
     output += '!</h1>'
     output += '<img src="'
     output += login_session['picture']
-    output += ' " style = "width: 300px; height: 300px; border-radius: 150px;-webkit-border-radius: 150px;-moz-border-radius: 150px;"> '
+    output += ' " style = "' + \
+              'width: 300px; ' + \
+              'height: 300px; ' + \
+              'border-radius: 150px; ' + \
+              '-webkit-border-radius: 150px; ' + \
+              '-moz-border-radius: 150px;"> '
     flash("you are now logged in as %s" % login_session['username'])
     print "done!"
     return output
+
 
 @app.route('/fbdisconnect')
 def fbdisconnect():
@@ -266,6 +306,7 @@ def fbdisconnect():
     h = httplib2.Http()
     result = h.request(url, 'DELETE')[1]
     return "you have been logged out"
+
 
 @app.route('/disconnect')
 def disconnect():
@@ -288,189 +329,207 @@ def disconnect():
         return redirect(url_for('allSavings'))
     else:
         flash("You were not been logged in to begin with!")
-        return redirect(url_for('allSavings'))   
+        return redirect(url_for('allSavings'))
 
-#-------------------------------------------------------------------------------
+# ----------------------------------------------------------------------------
+
 
 def list_sums(savings_id):
-  savings = session.query(Savings).filter_by(id = savings_id).one()
-  items = session.query(Items).filter_by(savings_id = savings_id)
-  sum = 0
-  for item in items:
-    sum += item.price
-  return sum
+    savings = session.query(Savings).filter_by(id=savings_id).one()
+    items = session.query(Items).filter_by(savings_id=savings_id)
+    sum = 0
+    for item in items:
+        sum += item.price
+    return sum
 
 
 @app.route('/savings/new/', methods=['GET', 'POST'])
 @app.route('/savings/new', methods=['GET', 'POST'])
 def newSavings():
-  if request.method == 'POST':
-    if 'name' in request.form:
-      if request.form['name']!='':
-        newSaving = Savings(name = request.form['name'])
-        session.add(newSaving)
-        session.commit()
-        flash("New saving was created!")
-    return redirect(url_for('allSavings'))
-  else:
-    return render_template('newsaving.html')
-  
-   
+    if request.method == 'POST':
+        if 'name' in request.form:
+            if request.form['name'] != '':
+                newSaving = Savings(name=request.form['name'])
+                session.add(newSaving)
+                session.commit()
+                flash("New saving was created!")
+        return redirect(url_for('allSavings'))
+    else:
+        return render_template('newsaving.html')
+
+
 @app.route('/savings/<int:savings_id>/edit/', methods=['GET', 'POST'])
 @app.route('/savings/<int:savings_id>/edit', methods=['GET', 'POST'])
 def editSavings(savings_id):
-  editedSaving = session.query(Savings).filter_by(id = savings_id).one()
-  if request.method == 'POST':
-    if 'name' in request.form:
-      if request.form['name']!='':
-        editedSaving.name = request.form['name']
-    session.add(editedSaving)
-    session.commit()
-    flash("Saving has been updated!")
-    return redirect(url_for('allSavings'))
-  else:
-    return render_template('editsaving.html', saving = editedSaving)
+    editedSaving = session.query(Savings).filter_by(id=savings_id).one()
+    if request.method == 'POST':
+        if 'name' in request.form:
+            if request.form['name'] != '':
+                editedSaving.name = request.form['name']
+                session.add(editedSaving)
+                session.commit()
+                flash("Saving has been updated!")
+        return redirect(url_for('allSavings'))
+    else:
+        return render_template('editsaving.html', saving=editedSaving)
+
 
 @app.route('/savings/<int:savings_id>/delete/', methods=['GET', 'POST'])
 @app.route('/savings/<int:savings_id>/delete', methods=['GET', 'POST'])
 def deleteSavings(savings_id):
-  deletedSaving = session.query(Savings).filter_by(id = savings_id).one()
-  listItems = session.query(Items).filter_by(savings_id = deletedSaving.id)
-  if request.method == 'POST':
-    for item in listItems:
-      deletefile(deletedItem.picture_path)
-    session.delete(deletedSaving)
-    session.commit()
-    flash("Saving has been deleted!")
-    return redirect(url_for('allSavings'))
-  else:
-    return render_template('deletesaving.html', saving = deletedSaving)
-#-------------------------------------------------------------------------------
+    deletedSaving = session.query(Savings).filter_by(id=savings_id).one()
+    listItems = session.query(Items).filter_by(savings_id=deletedSaving.id)
+    if request.method == 'POST':
+        for item in listItems:
+            deletefile(deletedItem.picture_path)
+        session.delete(deletedSaving)
+        session.commit()
+        flash("Saving has been deleted!")
+        return redirect(url_for('allSavings'))
+    else:
+        return render_template('deletesaving.html', saving=deletedSaving)
+# ----------------------------------------------------------------------------
+
 
 @app.route('/savings/<int:savings_id>/items/')
 @app.route('/savings/<int:savings_id>/items')
 def savingsList(savings_id):
-  # take first saving out the database
-  savings = session.query(Savings).filter_by(id = savings_id).one()
-  #list all savings items
-  items = session.query(Items).filter_by(savings_id = savings_id)
-  creator = session.query(User).filter_by(id = savings.user_id).one()
-  if 'username' not in login_session:
-    return render_template('publicmenu.html', savings = savings, 
-        items_with_picture_urls = [
-          (item, 
-            "images/uploads/" + os.path.basename(item.picture_path)
-              if item.picture_path else None
-          )
-          for item in items
-        ])
-  else:
-      return render_template('menu.html', creator = creator, savings = savings, 
-        items_with_picture_urls = [
-          (item, 
-            "images/uploads/" + os.path.basename(item.picture_path)
-              if item.picture_path else None
-          )
-          for item in items
-        ])
+    # take first saving out the database
+    savings = session.query(Savings).filter_by(id=savings_id).one()
+    # list all savings items
+    items = session.query(Items).filter_by(savings_id=savings_id)
+    creator = session.query(User).filter_by(id=savings.user_id).one()
+    if 'username' not in login_session:
+        return render_template('publicmenu.html', savings=savings,
+                  items_with_picture_urls=[
+                    (item,
+                      "images/uploads/" + os.path.basename(item.picture_path)
+                        if item.picture_path else None
+                    )
+                    for item in items
+                  ])
+    else:
+        return render_template('menu.html', creator=creator, savings=savings,
+                  items_with_picture_urls=[
+                    (item,
+                      "images/uploads/" + os.path.basename(item.picture_path)
+                        if item.picture_path else None
+                    )
+                    for item in items
+                  ])
+
 
 def allowed_file(filename):
-  return '.' in filename and \
-    filename.rsplit('.', 1)[1].lower() in ['.jpg', '.png', '.gif']
+    return '.' in filename and \
+      filename.rsplit('.', 1)[1].lower() in ['.jpg', '.png', '.gif']
+
 
 @app.route('/savings/<int:savings_id>/items/new', methods=['GET', 'POST'])
 @app.route('/savings/<int:savings_id>/items/new', methods=['GET', 'POST'])
 def newSavingItem(savings_id):
-  if request.method == 'POST':
-      if 'name' in request.form:
-        if request.form['name'] != '':
-          newName = request.form['name']
-          if 'picture' in request.files:
-            if request.files['picture']:
-              picture_file = request.files['picture']
-              random_string = ''.join(random.SystemRandom().choice(
-                string.ascii_uppercase + string.digits) for _ in range(8))
-              # Prefix the uploaded file name with the current timestamp and 
-              # a random string to reduce the probability of collisions.
-              upload_base_name = time.strftime('%Y-%m-%d_%H_%M_%S') + '_' + random_string + '_' + secure_filename(picture_file.filename)
-              upload_path = os.path.join(image_storage_dir, upload_base_name)
-              newDescription = request.form['description']
-              if 'price' in request.form:
-                if request.form['price'] != '':
-                  newPrice = request.form['price']
-                else: 
-                  newPrice = 0.0
-              newItem = Items(
-                name        = newName,
-                description = newDescription,
-                price       = newPrice,
-                savings_id  = savings_id,
-                picture_path = upload_path
-              )
-              picture_file.save(upload_path)
-              session.add(newItem)
-              session.commit()
-              flash("new saving item was created!")
-      return redirect(url_for('savingsList', savings_id = savings_id))
-  else:
-    return render_template('newsavingsitem.html', savings_id = savings_id)
+    if request.method == 'POST':
+        if 'name' in request.form:
+            if request.form['name'] != '':
+                newName = request.form['name']
+                if 'picture' in request.files:
+                    if request.files['picture']:
+                        picture_file = request.files['picture']
+                        random_string = ''.join(random.SystemRandom().choice(
+                          string.ascii_uppercase + string.digits
+                        ) for _ in range(8))
+                        # Prefix the uploaded file name with the current
+                        # timestamp and a random string to reduce the
+                        # probability of collisions.
+                        upload_base_name = time.strftime(
+                          '%Y-%m-%d_%H_%M_%S') + '_' + \
+                          random_string + '_' + \
+                          secure_filename(picture_file.filename)
+                        upload_path = os.path.join(
+                          image_storage_dir, upload_base_name)
+                        newDescription = request.form['description']
+                        if 'price' in request.form:
+                            if request.form['price'] != '':
+                                newPrice = request.form['price']
+                            else:
+                                newPrice = 0.0
+                        newItem = Items(
+                          name=newName,
+                          description=newDescription,
+                          price=newPrice,
+                          savings_id=savings_id,
+                          picture_path=upload_path
+                        )
+                        picture_file.save(upload_path)
+                        session.add(newItem)
+                        session.commit()
+                        flash("new saving item was created!")
+        return redirect(url_for('savingsList', savings_id=savings_id))
+    else:
+        return render_template('newsavingsitem.html', savings_id=savings_id)
 
-@app.route('/savings/<int:savings_id>/items/<int:items_id>/edit', 
-  methods = ['GET', 'POST'])
-@app.route('/savings/<int:savings_id>/items/<int:items_id>/edit/', 
-  methods = ['GET', 'POST'])
+
+@app.route('/savings/<int:savings_id>/items/<int:items_id>/edit',
+  methods=['GET', 'POST'])
+@app.route('/savings/<int:savings_id>/items/<int:items_id>/edit/',
+  methods=['GET', 'POST'])
 def editSavingsItem(savings_id, items_id):
-  editedItem = session.query(Items).filter_by(id = items_id).one()
-  if request.method == 'POST':
-    if 'name' in request.form:
-      if request.form['name'] != '':
-        editedItem.name = request.form['name']
-    if 'description' in request.form:
-      if request.form['description'] != '':
-        editedItem.description = request.form['description']
-    if 'price' in request.form:
-      if request.form['price'] != '':
-        editedItem.price = float(request.form['price'])
-    if 'picture' in request.files:
-       if request.files['picture']:
-        picture_file = request.files['picture']
-        random_string = ''.join(random.SystemRandom().choice(
-          string.ascii_uppercase + string.digits) for _ in range(8))
-      # Prefix the uploaded file name with the current timestamp and a random
-      # string to reduce the probability of collisions.
-        upload_base_name = \
-          time.strftime('%Y-%m-%d_%H_%M_%S') + '_' + random_string + '_' + \
-          secure_filename(picture_file.filename)
-        upload_path = os.path.join(image_storage_dir, upload_base_name)  
-        editedItem.picture_path = upload_path
-        picture_file.save(upload_path)
-    session.add(editedItem)
-    session.commit()
-    flash("Saving item has been updated!")
-    return redirect(url_for('savingsList', savings_id = savings_id))
-  else:
-    return render_template('editedsavingsitem.html', savings_id = savings_id, 
-      items_id = items_id, item = editedItem)
+    editedItem = session.query(Items).filter_by(id=items_id).one()
+    if request.method == 'POST':
+        if 'name' in request.form:
+            if request.form['name'] != '':
+                editedItem.name = request.form['name']
+                if 'description' in request.form:
+                    if request.form['description'] != '':
+                        editedItem.description = request.form['description']
+                if 'price' in request.form:
+                    if request.form['price'] != '':
+                        editedItem.price = float(request.form['price'])
+                if 'picture' in request.files:
+                    if request.files['picture']:
+                        picture_file = request.files['picture']
+                        random_string = ''.join(random.SystemRandom().choice(
+                          string.ascii_uppercase + string.digits
+                          ) for _ in range(8))
+                        # Prefix the uploaded file name with the current
+                        # timestamp and a random
+                        # string to reduce the probability of collisions.
+                        upload_base_name = \
+                          time.strftime('%Y-%m-%d_%H_%M_%S') + '_' + \
+                          + random_string + \
+                          + '_' + secure_filename(picture_file.filename)
+                        upload_path = os.path.join(image_storage_dir,
+                          upload_base_name)
+                        editedItem.picture_path = upload_path
+                        picture_file.save(upload_path)
+                session.add(editedItem)
+                session.commit()
+                flash("Saving item has been updated!")
+        return redirect(url_for('savingsList', savings_id=savings_id))
+    else:
+        return render_template('editedsavingsitem.html', savings_id=savings_id,
+          items_id=items_id, item=editedItem)
+
 
 def deletefile(name):
-  os.system('rm '+ name)
+    os.system('rm ' + name)
 
-@app.route('/savings/<int:savings_id>/items/<int:items_id>/delete', 
-  methods = ['GET', 'POST'])
+
+@app.route('/savings/<int:savings_id>/items/<int:items_id>/delete',
+  methods=['GET', 'POST'])
 @app.route('/savings/<int:savings_id>/items/<int:items_id>/delete/',
- methods = ['GET', 'POST'])
+ methods=['GET', 'POST'])
 def deleteSavingsItem(savings_id, items_id):
-  deletedItem = session.query(Items).filter_by(id = items_id).one()
-  if request.method == 'POST':
-    deletefile(deletedItem.picture_path)
-    session.delete(deletedItem)
-    session.commit()
-    flash("Saving item has been deleted!")
-    return redirect(url_for('savingsList', savings_id = savings_id))
-  else:
-    return render_template('deletesavingsitem.html', item = deletedItem)
+    deletedItem = session.query(Items).filter_by(id=items_id).one()
+    if request.method == 'POST':
+        deletefile(deletedItem.picture_path)
+        session.delete(deletedItem)
+        session.commit()
+        flash("Saving item has been deleted!")
+        return redirect(url_for('savingsList', savings_id=savings_id))
+    else:
+        return render_template('deletesavingsitem.html', item=deletedItem)
 
-if __name__ =='__main__':
-  app.secret_key = 'super_secret_key'
-  app.debug = True # reload if see any code changes
-  app.run(host = '0.0.0.0', port = 8080)
+if __name__ == '__main__':
+    app.secret_key = 'super_secret_key'
+    app.debug = True  # reload if see any code changes
+    app.run(host='0.0.0.0', port=8080)
