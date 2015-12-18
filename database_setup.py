@@ -47,8 +47,6 @@ class Items(Base):
     savings_id = Column(Integer, ForeignKey('savings.id'))
     savings = relationship(Savings, backref=backref("items",
                            cascade="all, delete"))
-    user_id = Column(Integer, ForeignKey('user.id'))
-    user = relationship(User)
 
     @property
     def serialize(self):

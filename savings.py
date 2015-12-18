@@ -346,10 +346,14 @@ def list_sums(savings_id):
 @app.route('/savings/new/', methods=['GET', 'POST'])
 @app.route('/savings/new', methods=['GET', 'POST'])
 def newSavings():
+    if 'username' not in login_session:
+        return redirect('login')
     if request.method == 'POST':
         if 'name' in request.form:
             if request.form['name'] != '':
-                newSaving = Savings(name=request.form['name'])
+                newSaving = Savings(name=request.form['name'], 
+                    user_id = login_session['user_id'])
+                print newSaving
                 session.add(newSaving)
                 session.commit()
                 flash("New saving was created!")
@@ -391,8 +395,8 @@ def deleteSavings(savings_id):
 # ----------------------------------------------------------------------------
 
 
-@app.route('/savings/<int:savings_id>/items/')
-@app.route('/savings/<int:savings_id>/items')
+@app.route('/savings/<int:savings_id>/items', methods=['GET', 'POST'])
+@app.route('/savings/<int:savings_id>/items/', methods=['GET', 'POST'])
 def savingsList(savings_id):
     # take first saving out the database
     savings = session.query(Savings).filter_by(id=savings_id).one()
@@ -478,32 +482,31 @@ def editSavingsItem(savings_id, items_id):
         if 'name' in request.form:
             if request.form['name'] != '':
                 editedItem.name = request.form['name']
-                if 'description' in request.form:
-                    if request.form['description'] != '':
-                        editedItem.description = request.form['description']
-                if 'price' in request.form:
-                    if request.form['price'] != '':
-                        editedItem.price = float(request.form['price'])
-                if 'picture' in request.files:
-                    if request.files['picture']:
-                        picture_file = request.files['picture']
-                        random_string = ''.join(random.SystemRandom().choice(
-                          string.ascii_uppercase + string.digits
-                          ) for _ in range(8))
-                        # Prefix the uploaded file name with the current
-                        # timestamp and a random
-                        # string to reduce the probability of collisions.
-                        upload_base_name = \
-                          time.strftime('%Y-%m-%d_%H_%M_%S') + '_' + \
-                          + random_string + \
-                          + '_' + secure_filename(picture_file.filename)
-                        upload_path = os.path.join(image_storage_dir,
-                          upload_base_name)
-                        editedItem.picture_path = upload_path
-                        picture_file.save(upload_path)
-                session.add(editedItem)
-                session.commit()
-                flash("Saving item has been updated!")
+        if 'description' in request.form:
+            if request.form['description'] != '':
+                editedItem.description = request.form['description']
+        if 'price' in request.form:
+            if request.form['price'] != '':
+                editedItem.price = float(request.form['price'])
+        if 'picture' in request.files:
+            if request.files['picture']:
+                picture_file = request.files['picture']
+                random_string = ''.join(random.SystemRandom().choice(
+                  string.ascii_uppercase + string.digits
+                  ) for _ in range(8))
+                # Prefix the uploaded file name with the current
+                # timestamp and a random
+                # string to reduce the probability of collisions.
+                upload_base_name = \
+                  time.strftime('%Y-%m-%d_%H_%M_%S') + '_' + \
+                  + random_string + '_' + secure_filename(picture_file.filename)
+                upload_path = os.path.join(image_storage_dir,
+                  upload_base_name)
+                editedItem.picture_path = upload_path
+                picture_file.save(upload_path)
+        session.add(editedItem)
+        session.commit()
+        flash("Saving item has been updated!")
         return redirect(url_for('savingsList', savings_id=savings_id))
     else:
         return render_template('editedsavingsitem.html', savings_id=savings_id,
