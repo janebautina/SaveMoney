@@ -10,7 +10,7 @@
   <div class="row">
     <div class="col-md-1">
       </br>
-      <form action="{{ url_for('deleteSavingsItem', savings_id = item.savings_id, items_id = item.id) }}" method = 'post'>
+      <form action="{{url_for('deleteSavingsItem', savings_id=item.savings_id, items_id=item.id)}}" method = 'post'>
         <input type='submit' value = 'Delete'>
       </form>
     </div>
@@ -20,7 +20,6 @@
         <input type='submit' value = 'Cancel'>
       </form>
     </br>
-    </div>
+  </div>
 </div>
-
  {% endblock %}

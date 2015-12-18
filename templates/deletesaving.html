@@ -9,13 +9,13 @@
 <div class="row">
     <div class="col-md-1">
       </br>
-      <form action="{{ url_for('deleteSavings', savings_id = saving.id) }}" method = 'post'>
+      <form action="{{ url_for('deleteSavings', savings_id=saving.id) }}" method = 'post'>
         <input type='submit' value = 'Delete'>
       </form>
     </div>
     <div class="col-md-2">
     </br>
-      <form action="{{url_for('allSavings')}}">
+      <form action="{{ url_for('allSavings') }}">
         <input type='submit' value = 'Cancel'>
       </form>
     </br>

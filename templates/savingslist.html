@@ -25,11 +25,11 @@
     </thead>
     {% for i, sum in savings_and_sums %}
       <tr>
-        <td><a href = "{{url_for('savingsList', savings_id = i.id)}}">{{i.name}}</a></td>
+        <td><a href = "{{url_for('savingsList', savings_id=i.id)}}">{{i.name}}</a></td>
         <td>{{sum}}</td>
         <td colspan="4">
-          <a class="btn btn-default" href='{{url_for('editSavings', savings_id = i.id)}}'> Edit </a>
-          <a class="btn btn-warning" href ='{{url_for('deleteSavings', savings_id = i.id)}}'> Delete </a>
+          <a class="btn btn-default" href='{{url_for('editSavings', savings_id=i.id)}}'> Edit </a>
+          <a class="btn btn-warning" href ='{{url_for('deleteSavings', savings_id=i.id)}}'> Delete </a>
          </td> 
       </tr>
       {% endfor %}

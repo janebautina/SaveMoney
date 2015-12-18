@@ -1,4 +1,3 @@
-  
   {% extends "main.html" %}
   {% block content %}
   {% include "header.html" %}
@@ -13,20 +12,18 @@
     </div>
   </div>
   <div class="row">
-  <div class="flash">
-      {% with messages = get_flashed_messages() %}
-      {% if messages %}
-    <ul>
-      {% for message in messages %}
-      <li><strong>{{message}}</strong></li>
-      {% endfor %}
-    </ul>
-      {% endif %}
-      {% endwith %}
-  </div>
-
-    <p><a href = '{{url_for('newSavingItem', savings_id = savings.id)}}'>Create a new item</a></p>
-
+    <div class="flash">
+        {% with messages = get_flashed_messages() %}
+        {% if messages %}
+      <ul>
+        {% for message in messages %}
+        <li><strong>{{message}}</strong></li>
+        {% endfor %}
+      </ul>
+        {% endif %}
+        {% endwith %}
+    </div>
+    <p><a href = '{{url_for('newSavingItem', savings_id=savings.id)}}'>Create a new item</a></p>
   </div>
   <div class="row">
     <table class="table table-striped ">
@@ -37,29 +34,24 @@
         <th style="width:10%">Price</th>
         <th style="width:20%">Action</th>
       </thead>
-      {% for item_with_picture_url in items_with_picture_urls %}
+        {% for item_with_picture_url in items_with_picture_urls %}
         {% set i = item_with_picture_url[0] %}
         {% set picture_url = item_with_picture_url[1] %}
         <tr>
-
           <td>{{i.name}}</td>
           {% if picture_url %}
-            <td><img class='img-responsive' src ="{{url_for('static', filename = picture_url)}}"></td>
+            <td><img class='img-responsive' src ="{{url_for('static', filename=picture_url)}}"></td>
           {% else %}
-             <td></td>
+            <td></td>
           {% endif %}
-
           <td>{{i.description}}</td>
-
           <td> {{i.price}} </td>
-
           <td colspan="4">
-            <a class="btn btn-default" href='{{url_for('editSavingsItem', savings_id = savings.id, items_id = i.id)}}'> Edit </a>
+            <a class="btn btn-default" href='{{url_for('editSavingsItem', savings_id=savings.id, items_id=i.id)}}'> Edit </a>
 
-            <a class="btn btn-warning" href ='{{url_for('deleteSavingsItem', savings_id = savings.id, items_id = i.id)}}'> Delete </a>
+            <a class="btn btn-warning" href ='{{url_for('deleteSavingsItem', savings_id=savings.id, items_id=i.id)}}'> Delete </a>
            </td> 
         </tr>
-
       {% endfor %}
     </table>
   </div>
