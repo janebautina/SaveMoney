@@ -2,6 +2,8 @@ from flask import Flask, render_template, request, redirect, url_for
 from flask import flash, jsonify, make_response
 from flask import session as login_session
 
+from functools import wraps
+
 import os
 import errno
 import json
@@ -34,27 +36,77 @@ Base.metadata.bind = engine
 DBSession = sessionmaker(bind=engine)
 session = DBSession()
 
-image_storage_dir = '/vagrant/MoneySaver/static/images/uploads'
+image_storage_dir = 'static/images/uploads'
 if not os.path.exists(image_storage_dir):
     os.mkdir(image_storage_dir)
 
 
-@app.route('/')
-@app.route('/savings')
-@app.route('/savings/')
-def allSavings():
-    savings = session.query(Savings).all()
-    total_sum = 0
-    for saving in savings:
-        total_sum += list_sums(saving.id)
-    if 'username' not in login_session:
-        return render_template('publicsavings.html',
-                    savings_and_sums=[(s, list_sums(s.id)) for s in savings],
-                    sum=total_sum)
-    else:
-        return render_template('savingslist.html',
-                    savings_and_sums=[(s, list_sums(s.id)) for s in savings],
-                    sum=total_sum)
+
+# ------------auxiliary functions--------------------------------------------
+
+
+def line_number(): 
+    """
+    Returns the current line number in our program. This is mostly used 
+    for debugging http://code.activestate.com/recipes/145297-grabbing-the
+    -current-line-number-easily/
+    """
+    return inspect.currentframe().f_back.f_lineno
+
+
+def allowed_file(filename):
+    """ Check whath files are allowed to upload from local machine
+    """
+    return '.' in filename and \
+      filename.rsplit('.', 1)[1].lower() in ['.jpg', '.png', '.gif']
+
+
+def getUserInfo(user_id):
+    user = session.query(User).filter_by(id=user_id).one()
+    return user
+
+
+def getUserID(email):
+    try:
+        user = session.query(User).filter_by(email=email).one()
+        return user.id
+    except:
+        return None
+
+
+def createUser(login_session):
+    newUser = User(name=login_session['username'],
+                   email=login_session['email'],
+                   picture=login_session['picture'])
+    session.add(newUser)
+    session.commit()
+    user = session.query(User).filter_by(email=login_session['email']).one()
+    return user.id
+
+
+def list_sums(savings_id):
+    savings = session.query(Savings).filter_by(id=savings_id).one()
+    items = session.query(Items).filter_by(savings_id=savings_id)
+    sum = 0
+    for item in items:
+        sum += item.price
+    return sum
+
+
+def deletefile(name):
+    os.system('rm ' + name)
+
+# -------------END auxiliary functions----------------------------------------
+# -------------Users login functions------------------------------------------
+
+
+def login_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if 'user_id' not in login_session:
+            return redirect(url_for('showLogin', next=request.url))
+        return f(*args, **kwargs)
+    return decorated_function
 
 
 @app.route('/login')
@@ -64,8 +116,9 @@ def showLogin():
     login_session['state'] = state
     return render_template('login.html', STATE=state)
 
-# -----------------------------------------------------------------------------
-# JSON APIs
+# --------------END Users login functions-------------------------------------
+
+# --------------JSON APIs-----------------------------------------------------
 
 
 @app.route('/savings/<int:savings_id>/items/JSON')
@@ -91,6 +144,7 @@ def usersJSON():
 def savingsJSON():
     savings = session.query(Savings).all()
     return jsonify(savings=[s.serialize for s in savings])
+
 
 # -----------------GOOGLE_OAUTH2_CONNECT-------------------------------------
 
@@ -140,7 +194,8 @@ def gconnect():
         print "Token's client ID does not match app's."
         response.headers['Content-Type'] = 'application/json'
         return response
-
+   
+    # pip install flask==0.9, please read readme.txt file
     stored_credentials = login_session.get('credentials')
     stored_gplus_id = login_session.get('gplus_id')
     if stored_credentials is not None and gplus_id == stored_gplus_id:
@@ -204,28 +259,6 @@ def gdisconnect():
         response.headers['Content-Type'] = 'application/json'
         return response
 
-
-def getUserInfo(user_id):
-    user = session.query(User).filter_by(id=user_id).one()
-    return user
-
-
-def getUserID(email):
-    try:
-        user = session.query(User).filter_by(email=email).one()
-        return user.id
-    except:
-        return None
-
-
-def createUser(login_session):
-    newUser = User(name=login_session['username'],
-                   email=login_session['email'],
-                   picture=login_session['picture'])
-    session.add(newUser)
-    session.commit()
-    user = session.query(User).filter_by(email=login_session['email']).one()
-    return user.id
 
 # -----------------------Facebook_Connect------------------------------------
 
@@ -311,7 +344,6 @@ def fbdisconnect():
 @app.route('/disconnect')
 def disconnect():
     if 'provider' in login_session:
-        print "Hello"
         if login_session['provider'] == 'google':
             gdisconnect()
             del login_session['gplus_id']
@@ -331,41 +363,54 @@ def disconnect():
         flash("You were not been logged in to begin with!")
         return redirect(url_for('allSavings'))
 
-# ----------------------------------------------------------------------------
+# ------------------END_Facebook_Connect-------------------------------------
 
 
-def list_sums(savings_id):
-    savings = session.query(Savings).filter_by(id=savings_id).one()
-    items = session.query(Items).filter_by(savings_id=savings_id)
-    sum = 0
-    for item in items:
-        sum += item.price
-    return sum
+@app.route('/')
+@app.route('/savings')
+@app.route('/savings/')
+def allSavings():
+    savings = session.query(Savings).all()
+    total_sum = 0
+    for saving in savings:
+        total_sum += list_sums(saving.id)
+    if 'username' not in login_session:
+        return render_template('publicsavings.html',
+                    savings_and_sums=[(s, list_sums(s.id)) for s in savings],
+                    sum=total_sum)
+    else:
+        return render_template('savingslist.html',
+                    savings_and_sums=[(s, list_sums(s.id)) for s in savings],
+                    sum=total_sum)
 
 
 @app.route('/savings/new/', methods=['GET', 'POST'])
 @app.route('/savings/new', methods=['GET', 'POST'])
-def newSavings():
-    if 'username' not in login_session:
-        return redirect('login')
-    if request.method == 'POST':
-        if 'name' in request.form:
-            if request.form['name'] != '':
-                newSaving = Savings(name=request.form['name'], 
-                    user_id = login_session['user_id'])
-                print newSaving
-                session.add(newSaving)
-                session.commit()
-                flash("New saving was created!")
-        return redirect(url_for('allSavings'))
-    else:
-        return render_template('newsaving.html')
+@login_required
+def newSavings(): 
+        if request.method == 'POST':
+            if 'name' in request.form:
+                if request.form['name'] != '':
+                    newSaving = Savings(name=request.form['name'], 
+                        user_id = login_session['user_id'])
+                    session.add(newSaving)
+                    session.commit()
+                    flash("New saving was created!")
+            return redirect(url_for('allSavings'))
+        else:
+            return render_template('newsaving.html')
 
 
 @app.route('/savings/<int:savings_id>/edit/', methods=['GET', 'POST'])
 @app.route('/savings/<int:savings_id>/edit', methods=['GET', 'POST'])
+@login_required
 def editSavings(savings_id):
     editedSaving = session.query(Savings).filter_by(id=savings_id).one()
+    if editedSaving.user_id != login_session['user_id']:
+        return """
+          <body onload='alert("You are not authorized to edit this saving!"); 
+          location.href="/";'>
+        """
     if request.method == 'POST':
         if 'name' in request.form:
             if request.form['name'] != '':
@@ -380,9 +425,15 @@ def editSavings(savings_id):
 
 @app.route('/savings/<int:savings_id>/delete/', methods=['GET', 'POST'])
 @app.route('/savings/<int:savings_id>/delete', methods=['GET', 'POST'])
+@login_required
 def deleteSavings(savings_id):
     deletedSaving = session.query(Savings).filter_by(id=savings_id).one()
     listItems = session.query(Items).filter_by(savings_id=deletedSaving.id)
+    if deletedSaving.user_id != login_session['user_id']:
+        return """
+          <body onload='alert("You are not authorized to delete this saving!"); 
+          location.href="/";'>
+        """
     if request.method == 'POST':
         for item in listItems:
             deletefile(deletedItem.picture_path)
@@ -422,15 +473,42 @@ def savingsList(savings_id):
                     for item in items
                   ])
 
+# ------------validation function--------------------------------------------
 
-def allowed_file(filename):
-    return '.' in filename and \
-      filename.rsplit('.', 1)[1].lower() in ['.jpg', '.png', '.gif']
+
+@app.route('/savings/items/validate', methods=['POST', 'GET'])
+@login_required
+def validateNewSavingItem():
+    if request.method == 'POST':
+        args = request.form
+    else:
+        args = request.args
+    name = args.get('name', '').strip()
+    price = args.get('price', '').strip()
+    description = args.get('description', '').strip()
+    response = {
+        'success': True
+    }
+    if name == '' or price == '' or description == '':
+        response['success'] = False
+        response['message'] = 'No field can be empty'
+    else:
+        response['message'] = 'Validation successful!'
+    return jsonify(response)
+
+# ----------------------------------------------------------------------
 
 
 @app.route('/savings/<int:savings_id>/items/new', methods=['GET', 'POST'])
 @app.route('/savings/<int:savings_id>/items/new', methods=['GET', 'POST'])
+@login_required
 def newSavingItem(savings_id):
+    saving = session.query(Savings).filter_by(id=savings_id).one()
+    if saving.user_id != login_session['user_id']:
+        return """
+          <body onload='alert("You are not authorized to add a new item!"); 
+          location.href="/";'>
+        """
     if request.method == 'POST':
         if 'name' in request.form:
             if request.form['name'] != '':
@@ -476,7 +554,14 @@ def newSavingItem(savings_id):
   methods=['GET', 'POST'])
 @app.route('/savings/<int:savings_id>/items/<int:items_id>/edit/',
   methods=['GET', 'POST'])
+@login_required
 def editSavingsItem(savings_id, items_id):
+    saving = session.query(Savings).filter_by(id=savings_id).one()
+    if saving.user_id != login_session['user_id']:
+        return """
+          <body onload='alert("You are not authorized to edit items!"); 
+          location.href="/";'>
+        """
     editedItem = session.query(Items).filter_by(id=items_id).one()
     if request.method == 'POST':
         if 'name' in request.form:
@@ -499,7 +584,7 @@ def editSavingsItem(savings_id, items_id):
                 # string to reduce the probability of collisions.
                 upload_base_name = \
                   time.strftime('%Y-%m-%d_%H_%M_%S') + '_' + \
-                  + random_string + '_' + secure_filename(picture_file.filename)
+                  random_string + '_' + secure_filename(picture_file.filename)
                 upload_path = os.path.join(image_storage_dir,
                   upload_base_name)
                 editedItem.picture_path = upload_path
@@ -513,15 +598,19 @@ def editSavingsItem(savings_id, items_id):
           items_id=items_id, item=editedItem)
 
 
-def deletefile(name):
-    os.system('rm ' + name)
-
 
 @app.route('/savings/<int:savings_id>/items/<int:items_id>/delete',
   methods=['GET', 'POST'])
 @app.route('/savings/<int:savings_id>/items/<int:items_id>/delete/',
  methods=['GET', 'POST'])
+@login_required
 def deleteSavingsItem(savings_id, items_id):
+    saving = session.query(Savings).filter_by(id=savings_id).one()
+    if saving.user_id != login_session['user_id']:
+        return """
+          <body onload='alert("You are not authorized to delete items!"); 
+          location.href="/";'>
+        """
     deletedItem = session.query(Items).filter_by(id=items_id).one()
     if request.method == 'POST':
         deletefile(deletedItem.picture_path)

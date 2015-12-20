@@ -33,4 +33,38 @@
     	     <p><input type = 'submit' value = 'Create Item'></p>
       </div>
     </form>
+    <button type="button" class="btn btn-info" id="validate-button">Validate</button>
+    <div class="alert alert-success" style="display:none" id="validation-result">
+    </div>
+
+<script type="text/javascript">
+$(function() {
+  $("#validate-button").click(function() {
+    $.ajax(
+      '{{url_for('validateNewSavingItem')}}',
+      {
+        data: {
+            name: $("input[name='name']").val(),
+            description: $("input[name='description']").val(),
+            price: $("input[name='price']").val()
+        },
+        success: function(response) {
+          var resultElement = $("#validation-result");
+          if (response['success']) {
+            resultElement.addClass("alert-success");
+            resultElement.removeClass("alert-warning");
+          } else {
+            resultElement.addClass("alert-warning");
+            resultElement.removeClass("alert-success");
+          }
+          resultElement.text(response['message']);
+          resultElement.show();
+        }
+      }
+    );
+  });
+});
+</script>
+
 {% endblock %}
+
