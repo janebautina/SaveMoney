@@ -1,5 +1,5 @@
 
-Welcome to SaveMoney!
+# Welcome to SaveMoney!
  
  This application that provides a list of savings options with a variety 
  of savings' items as well as provide a user registration and authentication 

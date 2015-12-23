@@ -598,7 +598,6 @@ def editSavingsItem(savings_id, items_id):
           items_id=items_id, item=editedItem)
 
 
-
 @app.route('/savings/<int:savings_id>/items/<int:items_id>/delete',
   methods=['GET', 'POST'])
 @app.route('/savings/<int:savings_id>/items/<int:items_id>/delete/',
