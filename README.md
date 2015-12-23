@@ -20,12 +20,22 @@ a JSON endpoint, at the very least.
 1. Install Vagrant and VirtualBox
 2. Install software listed in requirements
 3. Clone the SaveMoney repository
-4. In terminal navigete to SaveMoney directory
+4. In terminal navigate to SaveMoney directory
 5. Type the command to run VM: vagrant up
 6. Type the commant to log into VM: vagrant ssh
 7. Run application within the VM:
  - python database_setup.py
  - python loaddata.py
  - python savings.py
-8. 
+8. Access and test your application by visiting http://localhost:8080 locally
+
+# Requirements
+ - Python 3.0
+ - Werkzeug 0.8.3
+ - Flask 0.9
+ - Flask-Login 0.1.3
+ - SQLAlchemy 0.8.4
+
+
+
    
