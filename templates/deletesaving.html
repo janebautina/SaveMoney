@@ -7,18 +7,14 @@
     </div>
 </div>
 <div class="row">
-    <div class="col-md-1">
-      </br>
+    <div class="col-md-12">
       <form action="{{ url_for('deleteSavings', savings_id=saving.id) }}" method = 'post'>
-        <input type='submit' value = 'Delete'>
+      </br>
+        <p><input type='submit' class='btn btn-success' value = 'Delete'></p>
       </form>
-    </div>
-    <div class="col-md-2">
-    </br>
       <form action="{{ url_for('allSavings') }}">
-        <input type='submit' value = 'Cancel'>
+        <p><input type='submit' class="btn btn-danger" value = 'Cancel'></p>
       </form>
-    </br>
     </div>
 </div>
 {% endblock %}

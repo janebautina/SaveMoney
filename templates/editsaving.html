@@ -7,20 +7,16 @@
     </div>
   </div>
 <div class="row">
+  <div class="col-md-12">
   <form action = "{{url_for('editSavings', savings_id=saving.id)}}" method = 'POST'>
   		</br>
       <p> Name: </p>
-  			<input type = 'text' size = '30' name = 'name' placeholder = '{{saving.name}}'>
-    </br>
-    <div class="col-md-1">  
-    </br>
-  	 <p><input type = 'submit' value = 'Edit'> </p>
-    </div>
+  		<p><input type = 'text' size = '30' name = 'name' placeholder = '{{saving.name}}'></p>
+  	 <p><input type = 'submit' value = 'Edit' class="btn btn-success"> </p>
     </form>
-  <div class="col-md-2">
     <form action = "{{url_for('allSavings')}}">
-    </br>
-      <p><input type = 'submit' value = 'Cancel'> </p>
+      <p><input type = 'submit' value = 'Cancel' class="btn btn-danger"> </p>
     </form>
+  </div>
 </div>
 {% endblock %}

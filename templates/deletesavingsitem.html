@@ -6,20 +6,15 @@
       <h1> Delete {{item.name}}? </h1>
     </div>
   </div>
-<div>
   <div class="row">
-    <div class="col-md-1">
-      </br>
+    <div class="col-md-12">
+    </br>
       <form action="{{url_for('deleteSavingsItem', savings_id=item.savings_id, items_id=item.id)}}" method = 'post'>
-        <input type='submit' value = 'Delete'>
+        <p><input type='submit' class="btn btn-success" value = 'Delete'></p>
       </form>
-    </div>
-    <div class="col-md-2">
-    </br>
       <form action="{{ url_for('savingsList', savings_id=item.savings_id) }}" method = 'post'>
-        <input type='submit' value = 'Cancel'>
+        <p><input type='submit' class="btn btn-danger" value = 'Cancel'></p>
       </form>
-    </br>
   </div>
 </div>
  {% endblock %}

@@ -6,36 +6,23 @@
       <h1>New Saving's Item</h1>
     </div>
   </div>
-   <form action = "{{url_for('newSavingItem', savings_id = savings_id)}}"
-         method = 'post'
-         enctype = 'multipart/form-data'>
-    	<div class = "row">
-          </br>
-          <p> Item's Name: </p>
-    			<input type = 'text' size = '30' name = 'name'>
-      </div>
-      <div class = "row">
-      </br>
-    		  <p> Description: </p>	
-    			<input type = 'text' size = '80' name = 'description'>
-      </div>
-      <div class = "row">
-          </br>
-    		  <p> Price: </p>
-    			<input type = 'text' size = '8' name = 'price' >
-      </div>	
-      <div class="row">
-          </br>
-          <input name = "picture" id="input-25" type="file" multiple=false class="file-loading">
-      </div>
-      <div class = "row">
-        </br>
-    	     <p><input type = 'submit' value = 'Create Item'></p>
-      </div>
-    </form>
-    <button type="button" class="btn btn-info" id="validate-button">Validate</button>
-    <div class="alert alert-success" style="display:none" id="validation-result">
-    </div>
+  <div class="row">
+    <div class="col-md-12">
+       <form action = "{{url_for('newSavingItem', savings_id = savings_id)}}"
+             method = 'post'
+             enctype = 'multipart/form-data'>
+            <p>Item's Name:</p>
+        		<p><input type = 'text' size = '30' name = 'name'></p>
+        		<p>Description:</p>	
+        		<p><input type = 'text' size = '30' name = 'description'></p>
+        		<p>Price:</p>
+        		<p><input type = 'text' size = '8' name = 'price'></p>
+            <p><input name = "picture" id="input-25" type="file" multiple=false class="file-loading"></p>
+        	  <p><input type = 'submit' class="btn btn-danger"  value = 'Create Item'></p>
+        </form>
+            <button type="button" class="btn btn-info" id="validate-button">Validate</button>
+            <div class="alert alert-success" style="display:none" id="validation-result">
+            </div>
 
 <script type="text/javascript">
 $(function() {

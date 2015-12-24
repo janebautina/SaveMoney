@@ -8,9 +8,6 @@ DBSession = sessionmaker(bind=engine)
 session = DBSession()
 
 # --------------------------------------------------------------------------
-User1 = User(name="Evgeniya Bautina", email="janebarinova@gmail.com",
-             picture='http://pbs.twimg.com/media/B0yXek8CUAAUdRD.jpg')
-session.add(User1)
 session.commit()
 saving1 = Savings(name="Sweets", user_id=1)
 session.add(saving1)

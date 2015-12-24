@@ -1,20 +1,33 @@
+
 body {
-    font-weight: 100;
     font-family: 'Indie Flower', cursive;
-    background-color: #FFFFFF;
-    font-size: 23px;
+    font-size: 2vw;
+    background: url("/static/buy.jpg") no-repeat center center fixed;
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    background-size: cover;
+    -o-background-size: cover;
+    color: white;
 }
 
+input{
+  background-color: rgba(175, 207, 207, 0.6);
+}
+a{
+  color:#002080;
+}
 h1{
-  color: #336699;
-  font-size: 90px;
+  font-size: 7vw;
+}
+table{
+      background-color: rgba(175, 207, 207, 0.6);
 }
 .banner.menu {
-  height: 150px;
+  height: 150%;
 }
 .banner.main {
-  height: 180px;
-  background: url("/static/doit1280.jpg");
+  background-color: rgba(175, 207, 207, 0.6);
+  height: 30%;
   background-position: right;
   background-repeat: no-repeat;
   background-size: cover;
@@ -24,27 +37,28 @@ h1{
   font-size: 15px;
 }
 .col-md-1, .col-md-2{
-  padding-left: 0px;
+  margin-right: 10px;
 }
 .creator {
   padding-right: 20px;
-  margin-top: -20px;
   text-align: right;
   float:right;
 }
 .creator img {
-  width: 100px;
+  width: 10vw;
   border-radius: 50%;
-  margin-top: 15px;
+  margin-top: 5px;
+  margin-left: auto;
+  margin-right: auto;
 }
 .creator figcaption {
   font-size: 14px;
-  color: #7B7573;
-  font-weight: 400;
   margin-top: 5px;
+  text-align: center;
 }
 .flash {
-  background-color: #98FB98;
+  background-color: rgba(175, 207, 207, 0.6);
+  color:#FF3366;
   width:100%;
   text-decoration: none;
 
@@ -54,4 +68,8 @@ h1{
   list-style-type: none;
   text-align: center;
 
+}
+.btn{
+  font-size: 2vw;
+  padding: 12px 20px;
 }
