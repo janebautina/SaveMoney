@@ -3,25 +3,41 @@
 {% include "header.html" %}
   <div class="row banner main">
     <div class="col-md-11 col-md-offset-1 padding-none">
-      <h1>New Saving's Item</h1>
+      <h1>Edit Savings Item</h1>
     </div>
   </div>
   <div class = "row">
     <div class="col-md-12">
-      <form action = "{{url_for('editSavingsItem', savings_id=savings_id, items_id=items_id)}}" method = 'POST' enctype = 'multipart/form-data'>
-      </br>
-      <p> Name: </p>
-      <p><input type = 'text' size = '30' name = 'name' placeholder = '{{item.name}}'></p>
-      <p> Description: </p> 
-      <p><input type = 'text' size = '30' name = 'description' placeholder = '{{item.description}}'></p>
-      <p> Price: </p>
-      <p><input type = 'text' size = '8' name = 'price' placeholder = '{{item.price}}'></p>
-      <p><input name = "picture" id="input-25" type="file" multiple=false class="file-loading"></p>
-      <p><input type = 'submit' class="btn btn-success" value = 'Edit'></p>
-      <form action="{{url_for('savingsList', savings_id=item.savings_id)}}" method = 'POST'>  
-        	<p><input type='submit' class=" btn btn-danger" value = 'Cancel'></p>
+      <form role="form" method="POST" enctype = 'multipart/form-data'>
+        <div class="form-group">
+          </br>
+          <label for="name">Name</label>
+          <input type = 'text' class="form-control"
+            name = 'name' placeholder = '{{item.name}}'>
+        </div>
+        <div class="form-group">
+          <label for="description">Description</label> 
+          <input type = 'text' class="form-control" name = 'description' 
+            placeholder = '{{item.description}}'>
+        </div>
+        <div class="form-group">
+          <label for="price">Price</label>
+          <p><input type = 'number' class="form-control" name = 'price' 
+            placeholder = '{{item.price}}'></p>
+        </div>
+        <div class="form-group">
+          <input name = "picture" id="input-25" type="file" 
+              multiple=false class="file-loading">
+        </div>
+        <div class="form-group">
+          <input type = 'submit' class="btn btn-success" value = 'Edit' 
+          onclick="javascript: form.action='{{url_for('editSavingsItem', 
+          savings_id=savings_id, items_id=items_id)}}'">
+          <input type='submit' class=" btn btn-danger" value = 'Cancel' 
+          onclick="javascript: form.action='{{url_for('savingsList', 
+          savings_id=item.savings_id)}}'">
+        </div>
       </form>
-    </form>
   </div>
 </div>
   {% endblock %}

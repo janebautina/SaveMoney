@@ -473,31 +473,6 @@ def savingsList(savings_id):
                     for item in items
                   ])
 
-# ------------validation function--------------------------------------------
-
-
-@app.route('/savings/items/validate', methods=['POST', 'GET'])
-@login_required
-def validateNewSavingItem():
-    if request.method == 'POST':
-        args = request.form
-    else:
-        args = request.args
-    name = args.get('name', '').strip()
-    price = args.get('price', '').strip()
-    description = args.get('description', '').strip()
-    response = {
-        'success': True
-    }
-    if name == '' or price == '' or description == '':
-        response['success'] = False
-        response['message'] = 'No field can be empty'
-    else:
-        response['message'] = 'Validation successful!'
-    return jsonify(response)
-
-# ----------------------------------------------------------------------
-
 
 @app.route('/savings/<int:savings_id>/items/new', methods=['GET', 'POST'])
 @app.route('/savings/<int:savings_id>/items/new', methods=['GET', 'POST'])

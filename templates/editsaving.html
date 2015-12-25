@@ -5,17 +5,23 @@
     <div class="col-md-11 col-md-offset-1 padding-none">
       <h1>Edit Saving</h1>
     </div>
-  </div>
+</div>
 <div class="row">
   <div class="col-md-12">
-  <form action = "{{url_for('editSavings', savings_id=saving.id)}}" method = 'POST'>
-  		</br>
-      <p> Name: </p>
-  		<p><input type = 'text' size = '30' name = 'name' placeholder = '{{saving.name}}'></p>
-  	 <p><input type = 'submit' value = 'Edit' class="btn btn-success"> </p>
-    </form>
-    <form action = "{{url_for('allSavings')}}">
-      <p><input type = 'submit' value = 'Cancel' class="btn btn-danger"> </p>
+  <form>
+      <div class="form-group">
+        </br>
+        <label for="name">Name</label>
+    		<input type = 'text' class="form-control" name = 'name' 
+          placeholder = '{{saving.name}}'>
+      </div>
+      <div class="form-group">
+    	   <input type = 'submit' value = 'Edit' class="btn btn-success" 
+         onclick="javascript: form.action='{{url_for('editSavings', 
+         savings_id=saving.id)}}'; form.method='POST';">
+         <input type = 'submit' value = 'Cancel' class="btn btn-danger" 
+         onclick="javascript: form.action='{{url_for('allSavings')}}'">
+      </div> 
     </form>
   </div>
 </div>

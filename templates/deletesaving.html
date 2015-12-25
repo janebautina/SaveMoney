@@ -8,12 +8,13 @@
 </div>
 <div class="row">
     <div class="col-md-12">
-      <form action="{{ url_for('deleteSavings', savings_id=saving.id) }}" method = 'post'>
-      </br>
-        <p><input type='submit' class='btn btn-success' value = 'Delete'></p>
-      </form>
-      <form action="{{ url_for('allSavings') }}">
-        <p><input type='submit' class="btn btn-danger" value = 'Cancel'></p>
+      <form>
+        </br>
+        <input type='submit' class='btn btn-success' value = 'Delete' 
+        onclick="javascript: form.action='{{url_for('deleteSavings', 
+        savings_id=saving.id)}}'; form.method='POST';">
+        <input type='submit' class="btn btn-danger" value = 'Cancel' 
+        onclick="javascript: form.action='{{url_for('allSavings')}}';">
       </form>
     </div>
 </div>
