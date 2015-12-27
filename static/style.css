@@ -1,13 +1,12 @@
 
 body {
     font-family: 'Indie Flower', cursive;
-    font-size: 20px;
     background: url("/static/buy.jpg") no-repeat center center fixed;
     -webkit-background-size: cover;
     -moz-background-size: cover;
     background-size: cover;
     -o-background-size: cover;
-    color:#002080;
+    color:#FFFFFF;
 }
 .top-menu{
   display: flex;

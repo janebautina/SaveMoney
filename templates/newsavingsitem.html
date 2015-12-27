@@ -23,7 +23,7 @@
         </div>
         <div class="form-group">
             <input name = "picture" id="input-25" type="file" 
-              multiple=false class="file-loading">
+              multiple=false accept="image/*;capture=camera" class="file-loading">
         </div>
         <div class="form-group">
         	  <input type='submit' class="btn btn-success"  value = 'Create' 
@@ -37,4 +37,9 @@
     </div>
   </div>
 {% endblock %}
-
+<script>
+ var w = document.getElementById("input-25").width();
+ var h = $('input-25').height();
+ console.log("width:", w);
+ console.log("height", h);  
+</script>

@@ -14,8 +14,13 @@ import time
 import random
 import string
 
+import sys
+
 from sqlalchemy import create_engine, asc
 from sqlalchemy.orm import sessionmaker
+
+from PIL import Image, ExifTags
+from PIL.Image import core as _imaging
 
 from database_setup import Base, Savings, Items, User
 
@@ -43,6 +48,43 @@ if not os.path.exists(image_storage_dir):
 
 
 # ------------auxiliary functions--------------------------------------------
+
+def rotate_image(image_path):
+    # Open file with Pillow
+    image = Image.open(image_path)
+    #If no ExifTags, no rotating needed.
+
+    # Grab orientation value.
+
+    try:
+        image_exif = image._getexif()
+    except AttributeError:
+        print >>sys.stderr, "Cannot get EXIF data for %s" % image_path
+        return image_path
+
+    if image_exif is None:
+        return image_path
+
+    image_orientation = image_exif[274]
+    # Rotate depending on orientation.
+    if image_orientation == 3:
+        angle = 180
+    elif image_orientation == 6:
+        angle = 270
+    elif image_orientation == 8:
+        angle = 90
+    else:
+        print >>sys.stderr, "Unknown image orientation: %s, not rotating" % \
+            image_orientation
+        return image_path
+    rotated = image.rotate(angle, expand=1)
+    #rotated.thumbnail(size, Image.ANTIALIAS)  
+    # Save rotated image.
+    path_without_ext, ext = os.path.splitext(image_path)
+    new_image_path = path_without_ext + '__rotated' + ext
+    rotated.save(new_image_path)
+    deletefile(image_path)
+    return new_image_path
 
 
 def line_number(): 
@@ -454,24 +496,21 @@ def savingsList(savings_id):
     # list all savings items
     items = session.query(Items).filter_by(savings_id=savings_id)
     creator = session.query(User).filter_by(id=savings.user_id).one()
+
+    items_with_picture_urls = [
+        (
+            item,
+            "images/uploads/" + os.path.basename(item.picture_path)
+                if item.picture_path else None
+        )
+        for item in items
+    ]
     if 'username' not in login_session:
         return render_template('publicmenu.html', savings=savings,
-                  items_with_picture_urls=[
-                    (item,
-                      "images/uploads/" + os.path.basename(item.picture_path)
-                        if item.picture_path else None
-                    )
-                    for item in items
-                  ])
+                  items_with_picture_urls=items_with_picture_urls)
     else:
         return render_template('menu.html', creator=creator, savings=savings,
-                  items_with_picture_urls=[
-                    (item,
-                      "images/uploads/" + os.path.basename(item.picture_path)
-                        if item.picture_path else None
-                    )
-                    for item in items
-                  ])
+                  items_with_picture_urls=items_with_picture_urls)
 
 
 @app.route('/savings/<int:savings_id>/items/new', methods=['GET', 'POST'])
@@ -509,14 +548,15 @@ def newSavingItem(savings_id):
                                 newPrice = request.form['price']
                             else:
                                 newPrice = 0.0
+                        picture_file.save(upload_path)
+                        upload_path = rotate_image(upload_path)
                         newItem = Items(
                           name=newName,
                           description=newDescription,
                           price=newPrice,
                           savings_id=savings_id,
                           picture_path=upload_path
-                        )
-                        picture_file.save(upload_path)
+                        )                      
                         session.add(newItem)
                         session.commit()
                         flash("new saving item was created!")
@@ -562,6 +602,8 @@ def editSavingsItem(savings_id, items_id):
                   random_string + '_' + secure_filename(picture_file.filename)
                 upload_path = os.path.join(image_storage_dir,
                   upload_base_name)
+                picture_file.save(upload_path)
+                upload_path = rotate_image(upload_path)
                 editedItem.picture_path = upload_path
                 picture_file.save(upload_path)
         session.add(editedItem)
