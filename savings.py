@@ -42,20 +42,31 @@ DBSession = sessionmaker(bind=engine)
 session = DBSession()
 
 image_storage_dir = 'static/images/uploads'
+""" The direstory's path where uploaded images are stored.
+"""
+# if image_storage_dir doesn't exist, make the directory
 if not os.path.exists(image_storage_dir):
     os.mkdir(image_storage_dir)
 
 
-
 # ------------auxiliary functions--------------------------------------------
-
 def rotate_image(image_path):
+""" Function that rotates an image based exif orientation
+
+    Args:
+        image_path (string): an image to rotate path 
+
+    Returns: 
+        string: rotated image path
+
+    Raises:
+        AttributeError: if there is no exif data
+
+"""
     # Open file with Pillow
     image = Image.open(image_path)
-    #If no ExifTags, no rotating needed.
-
+    # If no ExifTags, no rotating needed
     # Grab orientation value.
-
     try:
         image_exif = image._getexif()
     except AttributeError:
@@ -83,32 +94,51 @@ def rotate_image(image_path):
     path_without_ext, ext = os.path.splitext(image_path)
     new_image_path = path_without_ext + '__rotated' + ext
     rotated.save(new_image_path)
-    deletefile(image_path)
+    os.remove(image_path)
     return new_image_path
 
 
 def line_number(): 
-    """
-    Returns the current line number in our program. This is mostly used 
+    """Returns the current line number in our program. This is mostly used 
     for debugging http://code.activestate.com/recipes/145297-grabbing-the
     -current-line-number-easily/
+
     """
     return inspect.currentframe().f_back.f_lineno
 
 
 def allowed_file(filename):
-    """ Check whath files are allowed to upload from local machine
+    """Check whath files are allowed to upload from local machine
+
     """
     return '.' in filename and \
       filename.rsplit('.', 1)[1].lower() in ['.jpg', '.png', '.gif']
 
 
 def getUserInfo(user_id):
+    """Retrives the user information.
+
+    Args: 
+        user_id(int): user id
+
+    Returns: 
+        list: user's id, name, email and picture path
+
+    """
     user = session.query(User).filter_by(id=user_id).one()
     return user
 
 
 def getUserID(email):
+    """Retrives user id by given email
+
+    Args:
+        email(String): user email
+
+    Returns:
+        int: user id if it's exists
+
+    """
     try:
         user = session.query(User).filter_by(email=email).one()
         return user.id
@@ -117,6 +147,15 @@ def getUserID(email):
 
 
 def createUser(login_session):
+    """Creates a new user using his/her facebook or google+ information
+    
+    Args:
+        login_session: facebook or google+ login_session
+
+    Returns:
+        int: new user id
+
+    """
     newUser = User(name=login_session['username'],
                    email=login_session['email'],
                    picture=login_session['picture'])
@@ -127,16 +166,21 @@ def createUser(login_session):
 
 
 def list_sums(savings_id):
+    """Calculates the sum of all saving items
+
+    Args: 
+        savings_id(int): saving id
+
+    Returns:
+         int: sum of saving items prices
+
+    """
     savings = session.query(Savings).filter_by(id=savings_id).one()
     items = session.query(Items).filter_by(savings_id=savings_id)
     sum = 0
     for item in items:
         sum += item.price
     return sum
-
-
-def deletefile(name):
-    os.system('rm ' + name)
 
 # -------------END auxiliary functions----------------------------------------
 # -------------Users login functions------------------------------------------
@@ -153,6 +197,8 @@ def login_required(f):
 
 @app.route('/login')
 def showLogin():
+    """Shows login page
+    """
     state = ''.join(random.choice(string.ascii_uppercase +
                     string.digits) for x in xrange(32))
     login_session['state'] = state
@@ -193,6 +239,8 @@ def savingsJSON():
 
 @app.route('/gconnect', methods=['POST'])
 def gconnect():
+    """Google+ login
+    """
     # Validate state token
     if request.args.get('state') != login_session['state']:
         response = make_response(json.dumps('Invalid state parameter.'), 401)
@@ -283,6 +331,8 @@ def gconnect():
 
 @app.route('/gdisconnect')
 def gdisconnect():
+    """ Google+ logout
+    """
     # Only disconnect a connected user.
     credentials = login_session.get('credentials')
     if credentials is None:
@@ -306,6 +356,8 @@ def gdisconnect():
 
 
 @app.route('/fbconnect', methods=['POST'])
+"""Facebook login
+"""
 def fbconnect():
     if request.args.get('state') != login_session['state']:
         print "request.args.get('state')=" + str(request.args.get('state'))
@@ -374,6 +426,8 @@ def fbconnect():
 
 @app.route('/fbdisconnect')
 def fbdisconnect():
+"""Facebook logout
+"""
     facebook_id = login_session['facebook_id']
     access_token = login_session['access_token']
     url = "https://graph.facebook.com/%s/permissions?access_token=%s" % (
@@ -384,6 +438,8 @@ def fbdisconnect():
 
 
 @app.route('/disconnect')
+"""Facebook/Google+ logout
+"""
 def disconnect():
     if 'provider' in login_session:
         if login_session['provider'] == 'google':
@@ -391,7 +447,6 @@ def disconnect():
             del login_session['gplus_id']
             del login_session['credentials']
         if login_session['provider'] == 'facebook':
-            print "Hello"
             fbdisconnect()
             del login_session['facebook_id']
         del login_session['username']
@@ -412,6 +467,8 @@ def disconnect():
 @app.route('/savings')
 @app.route('/savings/')
 def allSavings():
+"""Shows Savings list
+"""
     savings = session.query(Savings).all()
     total_sum = 0
     for saving in savings:
@@ -430,6 +487,8 @@ def allSavings():
 @app.route('/savings/new', methods=['GET', 'POST'])
 @login_required
 def newSavings(): 
+"""Shows a page for creating new saving
+"""
         if request.method == 'POST':
             if 'name' in request.form:
                 if request.form['name'] != '':
@@ -447,6 +506,8 @@ def newSavings():
 @app.route('/savings/<int:savings_id>/edit', methods=['GET', 'POST'])
 @login_required
 def editSavings(savings_id):
+"""Shows a page for editing a saving
+"""
     editedSaving = session.query(Savings).filter_by(id=savings_id).one()
     if editedSaving.user_id != login_session['user_id']:
         return """
@@ -469,6 +530,8 @@ def editSavings(savings_id):
 @app.route('/savings/<int:savings_id>/delete', methods=['GET', 'POST'])
 @login_required
 def deleteSavings(savings_id):
+"""Shows a page for deleting a saving
+"""
     deletedSaving = session.query(Savings).filter_by(id=savings_id).one()
     listItems = session.query(Items).filter_by(savings_id=deletedSaving.id)
     if deletedSaving.user_id != login_session['user_id']:
@@ -478,7 +541,7 @@ def deleteSavings(savings_id):
         """
     if request.method == 'POST':
         for item in listItems:
-            deletefile(deletedItem.picture_path)
+            os.remove(deletedItem.picture_path)
         session.delete(deletedSaving)
         session.commit()
         flash("Saving has been deleted!")
@@ -491,6 +554,8 @@ def deleteSavings(savings_id):
 @app.route('/savings/<int:savings_id>/items', methods=['GET', 'POST'])
 @app.route('/savings/<int:savings_id>/items/', methods=['GET', 'POST'])
 def savingsList(savings_id):
+"""Shows a list of all saving items
+"""
     # take first saving out the database
     savings = session.query(Savings).filter_by(id=savings_id).one()
     # list all savings items
@@ -517,6 +582,8 @@ def savingsList(savings_id):
 @app.route('/savings/<int:savings_id>/items/new', methods=['GET', 'POST'])
 @login_required
 def newSavingItem(savings_id):
+"""Shows a page for creating a new saving item
+"""
     saving = session.query(Savings).filter_by(id=savings_id).one()
     if saving.user_id != login_session['user_id']:
         return """
@@ -571,6 +638,8 @@ def newSavingItem(savings_id):
   methods=['GET', 'POST'])
 @login_required
 def editSavingsItem(savings_id, items_id):
+"""Shows a page for editing saving item
+"""
     saving = session.query(Savings).filter_by(id=savings_id).one()
     if saving.user_id != login_session['user_id']:
         return """
@@ -629,7 +698,7 @@ def deleteSavingsItem(savings_id, items_id):
         """
     deletedItem = session.query(Items).filter_by(id=items_id).one()
     if request.method == 'POST':
-        deletefile(deletedItem.picture_path)
+        os.remove(deletedItem.picture_path)
         session.delete(deletedItem)
         session.commit()
         flash("Saving item has been deleted!")
