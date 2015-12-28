@@ -690,6 +690,8 @@ def editSavingsItem(savings_id, items_id):
  methods=['GET', 'POST'])
 @login_required
 def deleteSavingsItem(savings_id, items_id):
+"""Shows a page for deleting items
+"""
     saving = session.query(Savings).filter_by(id=savings_id).one()
     if saving.user_id != login_session['user_id']:
         return """
