@@ -36,6 +36,3 @@ a JSON endpoint, at the very least.
  - Flask-Login 0.1.3
  - SQLAlchemy 0.8.4
 
-
-
-   
