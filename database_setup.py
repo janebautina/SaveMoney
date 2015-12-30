@@ -19,6 +19,8 @@ class User(Base):
     name = Column(String(250), nullable=False)
     email = Column(String(250), nullable=False)
     picture = Column(String(250))
+    savings = relationship("Savings", 
+      cascade = "delete, delete-orphan, save-update")
 
 
 class Savings(Base):
@@ -26,7 +28,8 @@ class Savings(Base):
     id = Column(Integer, primary_key=True)
     name = Column(String(80), nullable=False)
     user_id = Column(Integer, ForeignKey('user.id'))
-    user = relationship(User)
+    items = relationship("Items", 
+      cascade = "delete, delete-orphan, save-update")
 
     @property
     def serialize(self):
@@ -45,8 +48,6 @@ class Items(Base):
     price = Column(Float(presicion=2), default=0)
     picture_path = Column(String(1024))
     savings_id = Column(Integer, ForeignKey('savings.id'))
-    savings = relationship(Savings, backref=backref("items",
-                           cascade="all, delete"))
 
     @property
     def serialize(self):

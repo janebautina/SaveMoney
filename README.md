@@ -28,6 +28,7 @@ a JSON endpoint, at the very least.
  - python loaddata.py
  - python savings.py
 8. Access and test your application by visiting http://localhost:8080 locally
+9. Login via Facebook or Google+
 
 # Requirements
  - Python 3.0

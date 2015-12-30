@@ -51,18 +51,18 @@ if not os.path.exists(image_storage_dir):
 
 # ------------auxiliary functions--------------------------------------------
 def rotate_image(image_path):
-""" Function that rotates an image based exif orientation
+    """ Function that rotates an image based exif orientation
 
-    Args:
-        image_path (string): an image to rotate path 
+        Args:
+            image_path (string): an image to rotate path 
 
-    Returns: 
-        string: rotated image path
+        Returns: 
+            string: rotated image path
 
-    Raises:
-        AttributeError: if there is no exif data
+        Raises:
+            AttributeError: if there is no exif data
 
-"""
+    """
     # Open file with Pillow
     image = Image.open(image_path)
     # If no ExifTags, no rotating needed
@@ -356,9 +356,9 @@ def gdisconnect():
 
 
 @app.route('/fbconnect', methods=['POST'])
-"""Facebook login
-"""
 def fbconnect():
+    """Facebook login
+    """
     if request.args.get('state') != login_session['state']:
         print "request.args.get('state')=" + str(request.args.get('state'))
         print "login_session['state']=" + str(login_session['state'])
@@ -426,8 +426,8 @@ def fbconnect():
 
 @app.route('/fbdisconnect')
 def fbdisconnect():
-"""Facebook logout
-"""
+    """Facebook logout
+    """
     facebook_id = login_session['facebook_id']
     access_token = login_session['access_token']
     url = "https://graph.facebook.com/%s/permissions?access_token=%s" % (
@@ -438,9 +438,9 @@ def fbdisconnect():
 
 
 @app.route('/disconnect')
-"""Facebook/Google+ logout
-"""
 def disconnect():
+    """Facebook/Google+ logout
+    """
     if 'provider' in login_session:
         if login_session['provider'] == 'google':
             gdisconnect()
@@ -467,8 +467,8 @@ def disconnect():
 @app.route('/savings')
 @app.route('/savings/')
 def allSavings():
-"""Shows Savings list
-"""
+    """Shows Savings list
+    """
     savings = session.query(Savings).all()
     total_sum = 0
     for saving in savings:
@@ -487,27 +487,27 @@ def allSavings():
 @app.route('/savings/new', methods=['GET', 'POST'])
 @login_required
 def newSavings(): 
-"""Shows a page for creating new saving
-"""
-        if request.method == 'POST':
-            if 'name' in request.form:
-                if request.form['name'] != '':
-                    newSaving = Savings(name=request.form['name'], 
-                        user_id = login_session['user_id'])
-                    session.add(newSaving)
-                    session.commit()
-                    flash("New saving was created!")
-            return redirect(url_for('allSavings'))
-        else:
-            return render_template('newsaving.html')
+    """Shows a page for creating new saving
+    """
+    if request.method == 'POST':
+        if 'name' in request.form:
+            if request.form['name'] != '':
+                newSaving = Savings(name=request.form['name'], 
+                    user_id = login_session['user_id'])
+                session.add(newSaving)
+                session.commit()
+                flash("New saving was created!")
+        return redirect(url_for('allSavings'))
+    else:
+        return render_template('newsaving.html')
 
 
 @app.route('/savings/<int:savings_id>/edit/', methods=['GET', 'POST'])
 @app.route('/savings/<int:savings_id>/edit', methods=['GET', 'POST'])
 @login_required
 def editSavings(savings_id):
-"""Shows a page for editing a saving
-"""
+    """Shows a page for editing a saving
+    """
     editedSaving = session.query(Savings).filter_by(id=savings_id).one()
     if editedSaving.user_id != login_session['user_id']:
         return """
@@ -530,8 +530,8 @@ def editSavings(savings_id):
 @app.route('/savings/<int:savings_id>/delete', methods=['GET', 'POST'])
 @login_required
 def deleteSavings(savings_id):
-"""Shows a page for deleting a saving
-"""
+    """Shows a page for deleting a saving
+    """
     deletedSaving = session.query(Savings).filter_by(id=savings_id).one()
     listItems = session.query(Items).filter_by(savings_id=deletedSaving.id)
     if deletedSaving.user_id != login_session['user_id']:
@@ -541,7 +541,7 @@ def deleteSavings(savings_id):
         """
     if request.method == 'POST':
         for item in listItems:
-            os.remove(deletedItem.picture_path)
+            os.remove(item.picture_path)
         session.delete(deletedSaving)
         session.commit()
         flash("Saving has been deleted!")
@@ -554,8 +554,8 @@ def deleteSavings(savings_id):
 @app.route('/savings/<int:savings_id>/items', methods=['GET', 'POST'])
 @app.route('/savings/<int:savings_id>/items/', methods=['GET', 'POST'])
 def savingsList(savings_id):
-"""Shows a list of all saving items
-"""
+    """Shows a list of all saving items
+    """
     # take first saving out the database
     savings = session.query(Savings).filter_by(id=savings_id).one()
     # list all savings items
@@ -582,8 +582,8 @@ def savingsList(savings_id):
 @app.route('/savings/<int:savings_id>/items/new', methods=['GET', 'POST'])
 @login_required
 def newSavingItem(savings_id):
-"""Shows a page for creating a new saving item
-"""
+    """Shows a page for creating a new saving item
+    """
     saving = session.query(Savings).filter_by(id=savings_id).one()
     if saving.user_id != login_session['user_id']:
         return """
@@ -638,8 +638,8 @@ def newSavingItem(savings_id):
   methods=['GET', 'POST'])
 @login_required
 def editSavingsItem(savings_id, items_id):
-"""Shows a page for editing saving item
-"""
+    """Shows a page for editing saving item
+    """
     saving = session.query(Savings).filter_by(id=savings_id).one()
     if saving.user_id != login_session['user_id']:
         return """
@@ -690,8 +690,8 @@ def editSavingsItem(savings_id, items_id):
  methods=['GET', 'POST'])
 @login_required
 def deleteSavingsItem(savings_id, items_id):
-"""Shows a page for deleting items
-"""
+    """Shows a page for deleting items
+    """
     saving = session.query(Savings).filter_by(id=savings_id).one()
     if saving.user_id != login_session['user_id']:
         return """
