@@ -48,6 +48,8 @@ image_storage_dir = 'static/images/uploads'
 if not os.path.exists(image_storage_dir):
     os.mkdir(image_storage_dir)
 
+ALLOWED_EXTENSIONS = set(['png', 'jpg', 'jpeg', 'gif'])
+
 
 # ------------auxiliary functions--------------------------------------------
 def rotate_image(image_path):
@@ -68,15 +70,21 @@ def rotate_image(image_path):
     # If no ExifTags, no rotating needed
     # Grab orientation value.
     try:
+        if hasattr(image, '_getexif'): # only present in JPEGs
+            for orientation in ExifTags.TAGS.keys(): 
+                if ExifTags.TAGS[orientation]=='Orientation':
+                    print "Hello"
+                    return image_path
         image_exif = image._getexif()
+        print "rotate" + image_exif
     except AttributeError:
         print >>sys.stderr, "Cannot get EXIF data for %s" % image_path
         return image_path
 
     if image_exif is None:
         return image_path
-
-    image_orientation = image_exif[274]
+    if image_exif:
+        image_orientation = image_exif[274]
     # Rotate depending on orientation.
     if image_orientation == 3:
         angle = 180
@@ -112,7 +120,7 @@ def allowed_file(filename):
 
     """
     return '.' in filename and \
-      filename.rsplit('.', 1)[1].lower() in ['.jpg', '.png', '.gif']
+      filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
 def getUserInfo(user_id):
@@ -674,7 +682,6 @@ def editSavingsItem(savings_id, items_id):
                 picture_file.save(upload_path)
                 upload_path = rotate_image(upload_path)
                 editedItem.picture_path = upload_path
-                picture_file.save(upload_path)
         session.add(editedItem)
         session.commit()
         flash("Saving item has been updated!")
