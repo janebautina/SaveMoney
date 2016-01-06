@@ -667,6 +667,8 @@ def editSavingsItem(savings_id, items_id):
                 editedItem.price = float(request.form['price'])
         if 'picture' in request.files:
             if request.files['picture']:
+                print editedItem.picture_path
+                os.remove(editedItem.picture_path)
                 picture_file = request.files['picture']
                 random_string = ''.join(random.SystemRandom().choice(
                   string.ascii_uppercase + string.digits
