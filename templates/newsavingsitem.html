@@ -10,16 +10,19 @@
     <div class="col-md-12">
        <form enctype = 'multipart/form-data'>
         <div class="form-group">
-          <label for="name">Item Name</label>
-        	<input type = 'text' class="form-control" name = 'name'>
+          <label for="name">Item Name
+        	<input type = 'text' class="form-control" id="name" name = 'name'>
+        </label>
         </div>
         <div class="form-group">
-          <label for="description">Description</label>
-        	<p><input type = 'text' class="form-control" name = 'description'></p>
+          <label for="description">Description
+        	<input type = 'text' class="form-control" id="description" name = 'description'>
+          </label>
         </div>
         <div class="form-group">
-            <label for="price">Price</label>
-        		<p><input type = 'text' class="form-control" name = 'price'></p>
+            <label for="price">Price
+        		<input type = 'number' class="form-control" id='price' min="0" name = 'price'>
+            </label>
         </div>
         <div class="form-group">
             <input name = "picture" id="input-25" type="file" 
