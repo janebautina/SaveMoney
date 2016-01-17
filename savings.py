@@ -667,8 +667,7 @@ def editSavingsItem(savings_id, items_id):
                 editedItem.price = float(request.form['price'])
         if 'picture' in request.files:
             if request.files['picture']:
-                print editedItem.picture_path
-                os.remove(editedItem.picture_path)
+                oldPath=editedItem.picture_path
                 picture_file = request.files['picture']
                 random_string = ''.join(random.SystemRandom().choice(
                   string.ascii_uppercase + string.digits
@@ -684,6 +683,8 @@ def editSavingsItem(savings_id, items_id):
                 picture_file.save(upload_path)
                 upload_path = rotate_image(upload_path)
                 editedItem.picture_path = upload_path
+                if os.path.exists(oldPath):
+                    os.remove(oldPath)
         session.add(editedItem)
         session.commit()
         flash("Saving item has been updated!")
@@ -709,13 +710,14 @@ def deleteSavingsItem(savings_id, items_id):
         """
     deletedItem = session.query(Items).filter_by(id=items_id).one()
     if request.method == 'POST':
-        os.remove(deletedItem.picture_path)
+        if os.path.exists(deletedItem.picture_path):
+            os.remove(deletedItem.picture_path)
         session.delete(deletedItem)
         session.commit()
         flash("Saving item has been deleted!")
         return redirect(url_for('savingsList', savings_id=savings_id))
     else:
-        return render_template('deletesavingsitem.html', item=deletedItem)
+        return render_template('menu.html', item=deletedItem)
 
 if __name__ == '__main__':
     app.secret_key = 'super_secret_key'

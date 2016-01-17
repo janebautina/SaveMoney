@@ -28,7 +28,7 @@
   <div class="row">
     <table class="table">
       <thead>
-        <th style="width:15%">Name</th>
+        <th style="width:20%">Name</th>
         <th style="width:25%">Picture</th>
         <th style="width:20%">Description</th>
         <th style="width:10%">Price</th>
@@ -47,9 +47,15 @@
           <td>{{i.description}}</td>
           <td> {{i.price}} </td>
           <td colspan="4">
+            <form>
             <a class="btn btn-success" href='{{url_for('editSavingsItem', savings_id=savings.id, items_id=i.id)}}'> Edit </a>
 
-            <a class="btn btn-danger" href ='{{url_for('deleteSavingsItem', savings_id=savings.id, items_id=i.id)}}'> Delete </a>
+            <button type='submit' class="btn btn-danger" 
+                onclick="javascript: form.action='{{url_for('deleteSavingsItem', 
+                savings_id=i.savings_id, items_id=i.id)}}'; 
+                form.method='POST';">Delete
+            </button>
+         </form>
            </td> 
         </tr>
       {% endfor %}

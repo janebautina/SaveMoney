@@ -20,6 +20,7 @@
     </div>
     <p><a href = '{{url_for('newSavings')}}'>Create a new Saving</a></p>
   </div>
+  <div class="row">
   <table class="table">
     <thead>
       <th style="width:40%">Name</th>
@@ -31,8 +32,12 @@
         <td><a href = "{{url_for('savingsList', savings_id=i.id)}}">{{i.name}}</a></td>
         <td>{{sum}}</td>
         <td colspan="4">
+          <form>
           <a class="btn btn-success" href='{{url_for('editSavings', savings_id=i.id)}}'> Edit </a>
-          <a class="btn btn-danger" href ='{{url_for('deleteSavings', savings_id=i.id)}}'> Delete </a>
+          <button type='submit' class='btn btn-danger' 
+            onclick="javascript: form.action='{{url_for('deleteSavings', 
+            savings_id=i.id)}}'; form.method='POST';">Delete</button>
+        </form>
          </td> 
       </tr>
       {% endfor %}
@@ -41,4 +46,5 @@
         <td>{{sum}}</td>
       </tr>
   </table>
+</div>
 {% endblock %}

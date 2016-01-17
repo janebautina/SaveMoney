@@ -20,11 +20,11 @@
       {% endwith %}
     </div>
   </div>
+  <div class="row">
   <table class="table">
     <thead>
       <th style="width:75%">Name</th>
-      <th style = "width:25%">Saved Sum</th>
-
+      <th style="width:25%">Saved Sum</th>
     </thead>
     {% for i, sum in savings_and_sums %}
       <tr>
@@ -37,4 +37,5 @@
         <td>{{sum}}</td>
       </tr>
   </table>
+</div>
 {% endblock %}
