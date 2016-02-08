@@ -59,5 +59,5 @@ class Items(Base):
                  'picture_path': self.picture_path,
              }
 
-engine = create_engine('sqlite:///savemoneywithusers.db')
+engine = create_engine('postgresql://catalog:catalogpwd@localhost/savemoney')
 Base.metadata.create_all(engine)

@@ -2,7 +2,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from database_setup import Base, Savings, Items, User
 
-engine = create_engine('sqlite:///savemoneywithusers.db')
+engine = create_engine('postgresql://catalog:catalogpwd@localhost/savemoney')
 Base.metadata.bind = engine
 DBSession = sessionmaker(bind=engine)
 session = DBSession()

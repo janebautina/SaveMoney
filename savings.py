@@ -35,7 +35,8 @@ CLIENT_ID = json.loads(open(
   'client_secret.json', 'r').read())['web']['client_id']
 APPLICATION_NAME = "Savings"
 
-engine = create_engine('sqlite:///savemoneywithusers.db')
+#engine = create_engine('sqlite:///savemoneywithusers.db')
+engine = create_engine('postgresql://catalog:catalogpwd@localhost/savemoney')
 Base.metadata.bind = engine
 
 DBSession = sessionmaker(bind=engine)
