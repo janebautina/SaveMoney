@@ -5,3 +5,4 @@ static/images/uploads/*
 *.bak
 *.sw?
 client_secret.json
+fb_client_secrets.json
