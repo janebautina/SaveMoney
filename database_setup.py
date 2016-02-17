@@ -59,5 +59,6 @@ class Items(Base):
                  'picture_path': self.picture_path,
              }
 
-engine = create_engine('postgresql://catalog:catalogpwd@localhost/savemoney')
+#engine = create_engine('postgresql://catalog:catalogpwd@localhost/savemoney')
+engine = create_engine('postgresql://savemoneyadmin:savemoneyadminpwd@127.0.0.1/savemoney')
 Base.metadata.create_all(engine)

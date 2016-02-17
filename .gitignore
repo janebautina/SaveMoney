@@ -2,3 +2,6 @@
 *.db
 pip-delete-this-directory.txt
 static/images/uploads/*
+*.bak
+*.sw?
+client_secret.json
