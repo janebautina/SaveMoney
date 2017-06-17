@@ -30,7 +30,6 @@ class Savings(Base):
     user_id = Column(Integer, ForeignKey('user.id'))
     items = relationship("Items", 
       cascade = "delete, delete-orphan, save-update")
-
     @property
     def serialize(self):
         """Return object data in easily serializeable format"""
@@ -60,5 +59,5 @@ class Items(Base):
              }
 
 #engine = create_engine('postgresql://catalog:catalogpwd@localhost/savemoney')
-engine = create_engine('postgresql://savemoneyadmin:savemoneyadminpwd@127.0.0.1/savemoney')
+engine = create_engine('postgresql://savemoneyadmin:savemoneyadminpwd@127.0.0.1:5432/savemoney')
 Base.metadata.create_all(engine)

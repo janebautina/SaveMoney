@@ -29,8 +29,8 @@ from werkzeug import secure_filename
 from oauth2client.client import flow_from_clientsecrets
 from oauth2client.client import FlowExchangeError
 
-base_dir = '/var/www/html'
-
+#base_dir = '/var/www/html'
+base_dir = os.path.dirname(os.path.abspath(__file__))
 app = Flask(__name__, template_folder=os.path.join(base_dir, 'templates'))
 app.secret_key = 'super_secret_key'
 app.debug = True
